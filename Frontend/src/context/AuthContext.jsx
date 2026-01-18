@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         role: userFromResponse.role || role,
         phone: userFromResponse.phone,
         address: userFromResponse.address,
+        profileImage: userFromResponse.profileImage || null,
       };
 
       setUser(userData);
@@ -103,6 +104,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("servesync_userId");
   };
 
+  // Update user profile image in context
+  const updateUserImage = (profileImage) => {
+    const updatedUser = { ...user, profileImage };
+    setUser(updatedUser);
+    localStorage.setItem("servesync_user", JSON.stringify(updatedUser));
+  };
+
   const value = {
     user,
     login,
@@ -112,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     setError,
+    updateUserImage,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

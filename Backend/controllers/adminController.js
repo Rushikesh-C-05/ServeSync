@@ -5,6 +5,7 @@ import Booking from "../models/Booking.js";
 import Payment from "../models/Payment.js";
 import Review from "../models/Review.js";
 import PlatformConfig from "../models/PlatformConfig.js";
+import ProviderApplication from "../models/ProviderApplication.js";
 import { apiResponse } from "../utils/helpers.js";
 
 // Test endpoint
@@ -183,7 +184,8 @@ export const getStats = async (req, res) => {
 // Get all users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ role: { $in: ["user", "provider"] } })
+    // Get all users (both regular users and providers)
+    const users = await User.find({ role: { $ne: "admin" } })
       .select("-password")
       .sort({ createdAt: -1 });
 
@@ -265,6 +267,84 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+// Update user details
+export const updateUser = async (req, res) => {
+  try {
+    const { name, email, phone, address } = req.body;
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json(apiResponse(false, "User not found"));
+    }
+
+    if (user.role === "admin") {
+      return res
+        .status(403)
+        .json(apiResponse(false, "Cannot edit admin users"));
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json(apiResponse(false, "Email already in use"));
+      }
+      user.email = email;
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    user.updatedAt = Date.now();
+
+    await user.save();
+
+    res.json(
+      apiResponse(true, "User updated successfully", {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+      }),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to update user", error.message));
+  }
+};
+
+// Reset provider rejection status - allow user to reapply
+export const resetProviderRejection = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json(apiResponse(false, "User not found"));
+    }
+
+    user.providerRejected = false;
+    user.providerRejectionReason = "";
+    user.canReapply = true;
+    await user.save();
+
+    res.json(
+      apiResponse(
+        true,
+        "User can now reapply for provider status",
+        user.select("-password"),
+      ),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(
+        apiResponse(false, "Failed to reset rejection status", error.message),
+      );
+  }
+};
+
 // Get all providers
 export const getAllProviders = async (req, res) => {
   try {
@@ -277,6 +357,32 @@ export const getAllProviders = async (req, res) => {
     res
       .status(500)
       .json(apiResponse(false, "Failed to get providers", error.message));
+  }
+};
+
+// Update provider details
+export const updateProvider = async (req, res) => {
+  try {
+    const { businessName, description, category, experience } = req.body;
+    const provider = await Provider.findById(req.params.providerId);
+
+    if (!provider) {
+      return res.status(404).json(apiResponse(false, "Provider not found"));
+    }
+
+    if (businessName) provider.businessName = businessName;
+    if (description) provider.description = description;
+    if (category) provider.category = category;
+    if (experience !== undefined) provider.experience = experience;
+    provider.updatedAt = Date.now();
+
+    await provider.save();
+
+    res.json(apiResponse(true, "Provider updated successfully", provider));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to update provider", error.message));
   }
 };
 
@@ -354,13 +460,34 @@ export const deleteProvider = async (req, res) => {
     await Payment.deleteMany({ providerId: provider._id });
     await Review.deleteMany({ providerId: provider._id });
 
-    // Update user role back to user
-    await User.findByIdAndUpdate(provider.userId, { role: "user" });
+    // Update user role back to user and reset provider fields
+    await User.findByIdAndUpdate(
+      provider.userId,
+      {
+        role: "user",
+        providerRejected: false,
+        providerRejectionReason: null,
+        canReapply: true,
+      },
+      { new: true },
+    );
 
+    // Delete all provider applications (approved, rejected, or pending)
+    await ProviderApplication.deleteMany({
+      userId: provider.userId,
+    });
+
+    // Delete the provider
     await Provider.findByIdAndDelete(provider._id);
 
-    res.json(apiResponse(true, "Provider deleted successfully"));
+    res.json(
+      apiResponse(
+        true,
+        "Provider deleted successfully and user role updated to user",
+      ),
+    );
   } catch (error) {
+    console.error("Delete provider error:", error);
     res
       .status(500)
       .json(apiResponse(false, "Failed to delete provider", error.message));
@@ -382,6 +509,35 @@ export const getAllServices = async (req, res) => {
   }
 };
 
+// Update service details
+export const updateService = async (req, res) => {
+  try {
+    const { title, description, category, price, pricingType, location } =
+      req.body;
+    const service = await Service.findById(req.params.serviceId);
+
+    if (!service) {
+      return res.status(404).json(apiResponse(false, "Service not found"));
+    }
+
+    if (title) service.title = title;
+    if (description) service.description = description;
+    if (category) service.category = category;
+    if (price !== undefined) service.price = price;
+    if (pricingType) service.pricingType = pricingType;
+    if (location) service.location = location;
+    service.updatedAt = Date.now();
+
+    await service.save();
+
+    res.json(apiResponse(true, "Service updated successfully", service));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to update service", error.message));
+  }
+};
+
 // Get all bookings
 export const getAllBookings = async (req, res) => {
   try {
@@ -396,6 +552,31 @@ export const getAllBookings = async (req, res) => {
     res
       .status(500)
       .json(apiResponse(false, "Failed to get bookings", error.message));
+  }
+};
+
+// Update booking details
+export const updateBooking = async (req, res) => {
+  try {
+    const { scheduledDate, scheduledTime, notes } = req.body;
+    const booking = await Booking.findById(req.params.bookingId);
+
+    if (!booking) {
+      return res.status(404).json(apiResponse(false, "Booking not found"));
+    }
+
+    if (scheduledDate) booking.scheduledDate = scheduledDate;
+    if (scheduledTime) booking.scheduledTime = scheduledTime;
+    if (notes !== undefined) booking.notes = notes;
+    booking.updatedAt = Date.now();
+
+    await booking.save();
+
+    res.json(apiResponse(true, "Booking updated successfully", booking));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to update booking", error.message));
   }
 };
 
@@ -476,16 +657,131 @@ export const updatePlatformFee = async (req, res) => {
 export const getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
-      .populate("userId", "name")
-      .populate("providerId")
+      .populate("userId", "name email")
+      .populate("providerId", "businessName")
       .populate("serviceId", "name")
+      .populate("bookingId", "bookingDate")
       .sort({ createdAt: -1 });
 
-    res.json(apiResponse(true, "Reviews retrieved", reviews));
+    // Calculate stats
+    const totalReviews = reviews.length;
+    const avgRating =
+      totalReviews > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+        : 0;
+
+    // Rating distribution
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((r) => {
+      distribution[r.rating]++;
+    });
+
+    res.json(
+      apiResponse(true, "Reviews retrieved", {
+        reviews,
+        stats: {
+          totalReviews,
+          averageRating: parseFloat(avgRating.toFixed(1)),
+          distribution,
+          visibleReviews: reviews.filter((r) => r.isVisible).length,
+          hiddenReviews: reviews.filter((r) => !r.isVisible).length,
+        },
+      }),
+    );
   } catch (error) {
     res
       .status(500)
       .json(apiResponse(false, "Failed to get reviews", error.message));
+  }
+};
+
+// Toggle review visibility
+export const toggleReviewVisibility = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json(apiResponse(false, "Review not found"));
+    }
+
+    review.isVisible = !review.isVisible;
+    review.updatedAt = new Date();
+    await review.save();
+
+    // Update service rating if visibility changed
+    const allServiceReviews = await Review.find({
+      serviceId: review.serviceId,
+      isVisible: true,
+    });
+
+    const newRating =
+      allServiceReviews.length > 0
+        ? allServiceReviews.reduce((sum, r) => sum + r.rating, 0) /
+          allServiceReviews.length
+        : 0;
+
+    await Service.findByIdAndUpdate(review.serviceId, {
+      rating: parseFloat(newRating.toFixed(1)),
+      reviewCount: allServiceReviews.length,
+      updatedAt: Date.now(),
+    });
+
+    const updatedReview = await Review.findById(reviewId)
+      .populate("userId", "name email")
+      .populate("providerId", "businessName")
+      .populate("serviceId", "name");
+
+    res.json(
+      apiResponse(
+        true,
+        review.isVisible ? "Review is now visible" : "Review is now hidden",
+        updatedReview,
+      ),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to update review", error.message));
+  }
+};
+
+// Delete review
+export const deleteReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json(apiResponse(false, "Review not found"));
+    }
+
+    const serviceId = review.serviceId;
+    await Review.findByIdAndDelete(reviewId);
+
+    // Update service rating
+    const allServiceReviews = await Review.find({
+      serviceId,
+      isVisible: true,
+    });
+
+    const newRating =
+      allServiceReviews.length > 0
+        ? allServiceReviews.reduce((sum, r) => sum + r.rating, 0) /
+          allServiceReviews.length
+        : 0;
+
+    await Service.findByIdAndUpdate(serviceId, {
+      rating: parseFloat(newRating.toFixed(1)),
+      reviewCount: allServiceReviews.length,
+      updatedAt: Date.now(),
+    });
+
+    res.json(apiResponse(true, "Review deleted successfully"));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to delete review", error.message));
   }
 };
 
@@ -666,5 +962,231 @@ export const deleteCategory = async (req, res) => {
     res
       .status(500)
       .json(apiResponse(false, "Error deleting category", error.message));
+  }
+};
+
+// Get all provider applications
+export const getProviderApplications = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = status ? { status } : {};
+
+    const applications = await ProviderApplication.find(filter)
+      .populate("userId", "name email")
+      .populate("reviewedBy", "name email")
+      .sort({ submittedAt: -1 });
+
+    res.json(
+      apiResponse(true, "Applications retrieved successfully", applications),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to get applications", error.message));
+  }
+};
+
+// Get single provider application
+export const getProviderApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const application = await ProviderApplication.findById(id)
+      .populate("userId", "name email phone address")
+      .populate("reviewedBy", "name email");
+
+    if (!application) {
+      return res.status(404).json(apiResponse(false, "Application not found"));
+    }
+
+    res.json(
+      apiResponse(true, "Application retrieved successfully", application),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to get application", error.message));
+  }
+};
+
+// Approve provider application
+export const approveProviderApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { adminNotes } = req.body;
+
+    const application = await ProviderApplication.findById(id);
+
+    if (!application) {
+      return res.status(404).json(apiResponse(false, "Application not found"));
+    }
+
+    if (application.status !== "pending") {
+      return res
+        .status(400)
+        .json(apiResponse(false, `Application already ${application.status}`));
+    }
+
+    // Update user role to provider
+    const user = await User.findById(application.userId);
+    user.role = "provider";
+    await user.save();
+
+    // Create provider profile
+    const provider = new Provider({
+      userId: application.userId,
+      businessName: application.businessName,
+      description: application.businessDescription,
+      category: application.category,
+      experience: application.experience,
+      contactInfo: {
+        phone: application.phone,
+        email: user.email,
+        address: application.address,
+      },
+      certifications: application.certifications,
+      portfolio: application.portfolio,
+      isActive: true,
+      rating: 0,
+      totalReviews: 0,
+    });
+
+    await provider.save();
+
+    // Update application status
+    application.status = "approved";
+    application.adminNotes = adminNotes;
+    application.reviewedBy = req.userId;
+    application.reviewedAt = Date.now();
+    await application.save();
+
+    res.json(
+      apiResponse(
+        true,
+        "Application approved successfully. User is now a provider.",
+        {
+          application,
+          provider,
+        },
+      ),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to approve application", error.message));
+  }
+};
+
+// Reject provider application
+export const rejectProviderApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { adminNotes } = req.body;
+
+    const application = await ProviderApplication.findById(id);
+
+    if (!application) {
+      return res.status(404).json(apiResponse(false, "Application not found"));
+    }
+
+    if (application.status !== "pending") {
+      return res
+        .status(400)
+        .json(apiResponse(false, `Application already ${application.status}`));
+    }
+
+    // Update user with rejection flag
+    const user = await User.findById(application.userId);
+    user.providerRejected = true;
+    user.providerRejectionReason =
+      adminNotes || "Application rejected by admin";
+    user.canReapply = false; // Prevent reapplication unless admin allows
+    await user.save();
+
+    // Update application status
+    application.status = "rejected";
+    application.adminNotes = adminNotes || "Application rejected by admin";
+    application.reviewedBy = req.userId;
+    application.reviewedAt = Date.now();
+    await application.save();
+
+    res.json(
+      apiResponse(true, "Application rejected successfully", application),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to reject application", error.message));
+  }
+};
+
+// Delete a service
+export const deleteService = async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.serviceId);
+    if (!service) {
+      return res.status(404).json(apiResponse(false, "Service not found"));
+    }
+
+    // Delete all bookings related to this service
+    await Booking.deleteMany({ serviceId: service._id });
+    await Payment.deleteMany({ serviceId: service._id });
+    await Review.deleteMany({ serviceId: service._id });
+
+    await Service.findByIdAndDelete(service._id);
+
+    res.json(apiResponse(true, "Service deleted successfully"));
+  } catch (error) {
+    console.error("Delete service error:", error);
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to delete service", error.message));
+  }
+};
+
+// Update booking status (admin can change status)
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const booking = await Booking.findById(req.params.bookingId);
+
+    if (!booking) {
+      return res.status(404).json(apiResponse(false, "Booking not found"));
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    res.json(apiResponse(true, "Booking status updated successfully", booking));
+  } catch (error) {
+    console.error("Update booking status error:", error);
+    res
+      .status(500)
+      .json(
+        apiResponse(false, "Failed to update booking status", error.message),
+      );
+  }
+};
+
+// Delete a booking
+export const deleteBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.bookingId);
+    if (!booking) {
+      return res.status(404).json(apiResponse(false, "Booking not found"));
+    }
+
+    // Delete related payments and reviews
+    await Payment.deleteMany({ bookingId: booking._id });
+    await Review.deleteMany({ bookingId: booking._id });
+
+    await Booking.findByIdAndDelete(booking._id);
+
+    res.json(apiResponse(true, "Booking deleted successfully"));
+  } catch (error) {
+    console.error("Delete booking error:", error);
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to delete booking", error.message));
   }
 };

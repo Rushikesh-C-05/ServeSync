@@ -12,12 +12,14 @@ Complete Node.js/Express.js backend for the ServeSync platform with MongoDB data
 - **Booking System:** Complete booking workflow with status management
 - **Payment Tracking:** Platform fee calculation and provider earnings
 - **Review System:** Rating and feedback for completed services
+- **Image Upload:** Cloudinary-based image storage for users, providers, and services
 
 ## 📋 Prerequisites
 
 - Node.js (v14 or higher)
 - MongoDB (running on localhost:27017)
 - npm or yarn
+- Cloudinary account (for image uploads)
 
 ## 🛠️ Installation
 
@@ -28,15 +30,20 @@ Complete Node.js/Express.js backend for the ServeSync platform with MongoDB data
    ```
 
 2. **Configure environment variables:**
-
    - Copy `.env` file and update values if needed
    - Default configuration:
+
      ```
      PORT=8080
      MONGODB_URI=mongodb://localhost:27017/servesync
      JWT_SECRET=your-secret-key-change-in-production
      JWT_EXPIRE=7d
      PLATFORM_FEE_PERCENTAGE=10
+
+     # Cloudinary Configuration (required for image uploads)
+     CLOUDINARY_CLOUD_NAME=your_cloud_name
+     CLOUDINARY_API_KEY=your_api_key
+     CLOUDINARY_API_SECRET=your_api_secret
      ```
 
 3. **Seed the database:**

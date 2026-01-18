@@ -31,10 +31,41 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // Provider response to the review
+  providerResponse: {
+    text: {
+      type: String,
+      default: null,
+    },
+    respondedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  // Whether the review is visible (for moderation)
+  isVisible: {
+    type: Boolean,
+    default: true,
+  },
+  // Helpful votes count
+  helpfulCount: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
+
+// Index for efficient queries
+reviewSchema.index({ serviceId: 1, createdAt: -1 });
+reviewSchema.index({ providerId: 1, createdAt: -1 });
+reviewSchema.index({ userId: 1, createdAt: -1 });
+reviewSchema.index({ bookingId: 1 }, { unique: true });
 
 export default mongoose.model("Review", reviewSchema);

@@ -1,6 +1,7 @@
 import express from "express";
 import * as userController from "../controllers/userController.js";
 import { auth } from "../middleware/auth.js";
+import { uploadProviderImage } from "../config/cloudinary.js";
 
 const router = express.Router();
 
@@ -25,5 +26,23 @@ router.patch(
 );
 router.post("/:userId/reviews", auth, userController.submitReview);
 router.get("/:userId/reviews", auth, userController.getReviews);
+router.get(
+  "/:userId/bookings/:bookingId/can-review",
+  auth,
+  userController.canReviewBooking,
+);
+
+// Provider application routes
+router.post(
+  "/:userId/provider-application",
+  auth,
+  uploadProviderImage.single("businessImage"),
+  userController.submitProviderApplication,
+);
+router.get(
+  "/:userId/provider-application/status",
+  auth,
+  userController.getProviderApplicationStatus,
+);
 
 export default router;

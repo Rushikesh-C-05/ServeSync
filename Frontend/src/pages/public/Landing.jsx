@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   FiCheck,
@@ -41,7 +40,8 @@ const Landing = () => {
       title: "I need services",
       role: "user",
       icon: FiUser,
-      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-600",
+      lightBg: "bg-blue-50",
       features: [
         "Browse services",
         "Easy booking",
@@ -53,7 +53,8 @@ const Landing = () => {
       title: "I provide services",
       role: "provider",
       icon: FiTool,
-      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-indigo-600",
+      lightBg: "bg-indigo-50",
       features: [
         "Manage services",
         "Accept bookings",
@@ -65,7 +66,8 @@ const Landing = () => {
       title: "Platform Admin",
       role: "admin",
       icon: FiShield,
-      color: "from-orange-500 to-red-500",
+      bgColor: "bg-slate-800",
+      lightBg: "bg-slate-50",
       features: [
         "Monitor platform",
         "Manage users",
@@ -76,60 +78,35 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute w-96 h-96 bg-neon-blue/10 rounded-full blur-3xl -top-48 -left-48 animate-pulse-slow"></div>
-          <div className="absolute w-96 h-96 bg-neon-purple/10 rounded-full blur-3xl top-48 -right-48 animate-float"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section className="bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           {/* Logo/Brand */}
-          <motion.div
-            className="flex items-center justify-center space-x-3 mb-16"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-neon-blue to-neon-purple rounded-2xl flex items-center justify-center">
-              <span className="text-3xl font-bold">S</span>
+          <div className="flex items-center justify-center space-x-3 mb-16">
+            <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center">
+              <span className="text-2xl font-bold text-white">S</span>
             </div>
-            <h1 className="text-4xl font-bold gradient-text">ServeSync</h1>
-          </motion.div>
+            <h1 className="text-3xl font-bold text-gray-900">ServeSync</h1>
+          </div>
 
           {/* Hero Content */}
           <div className="text-center max-w-4xl mx-auto">
-            <motion.h2
-              className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-gray-900">
               Book Services
-              <span className="gradient-text"> Instantly</span>
-            </motion.h2>
+              <span className="text-blue-600"> Instantly</span>
+            </h2>
 
-            <motion.p
-              className="text-xl md:text-2xl text-gray-400 mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <p className="text-lg md:text-xl text-gray-600 mb-10">
               Connect with top-rated service providers for all your needs.
               <br />
               Simple. Fast. Reliable.
-            </motion.p>
+            </p>
 
-            <motion.div
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                to="/login/user"
-                className="btn-neon w-full sm:w-auto flex items-center justify-center space-x-2"
+                to="/login"
+                className="btn-primary w-full sm:w-auto flex items-center justify-center space-x-2"
               >
                 <span>Get Started</span>
                 <FiArrowRight />
@@ -140,65 +117,56 @@ const Landing = () => {
               >
                 Learn More
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-dark-card/30">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="glass-card p-6 text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
+                className="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm"
               >
-                <feature.icon className="text-4xl text-neon-blue mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.description}</p>
-              </motion.div>
+                <feature.icon className="text-3xl text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-500 text-sm">{feature.description}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Roles Section */}
-      <section className="py-20">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold mb-4">Choose Your Role</h2>
-            <p className="text-gray-400 text-lg">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Choose Your Role
+            </h2>
+            <p className="text-gray-600 text-lg">
               Select how you want to use ServeSync
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {roles.map((role, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="glass-card p-8 hover:scale-105 transition-transform duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
+                className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div
-                  className={`w-16 h-16 bg-gradient-to-br ${role.color} rounded-xl flex items-center justify-center mb-6 mx-auto`}
+                  className={`w-14 h-14 ${role.bgColor} rounded-xl flex items-center justify-center mb-6 mx-auto`}
                 >
-                  <role.icon className="text-3xl" />
+                  <role.icon className="text-2xl text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold text-center mb-6">
+                <h3 className="text-xl font-semibold text-center text-gray-900 mb-6">
                   {role.title}
                 </h3>
 
@@ -206,9 +174,9 @@ const Landing = () => {
                   {role.features.map((feature, idx) => (
                     <li
                       key={idx}
-                      className="flex items-center space-x-2 text-gray-300"
+                      className="flex items-center space-x-2 text-gray-600"
                     >
-                      <FiCheck className="text-neon-green flex-shrink-0" />
+                      <FiCheck className="text-green-500 flex-shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -216,7 +184,7 @@ const Landing = () => {
 
                 <Link
                   to={role.role === "user" ? "/login" : `/${role.role}/login`}
-                  className={`btn-primary w-full block text-center bg-gradient-to-r ${role.color}`}
+                  className={`btn-primary w-full block text-center ${role.bgColor} hover:opacity-90`}
                 >
                   Continue as{" "}
                   {role.role === "admin"
@@ -224,49 +192,34 @@ const Landing = () => {
                     : role.role.charAt(0).toUpperCase() + role.role.slice(1)}
                 </Link>
 
-                {role.role === "provider" && (
-                  <div className="mt-3 text-center text-sm text-gray-400">
-                    New provider?{" "}
-                    <Link
-                      to="/provider/register"
-                      className="text-purple-400 hover:text-purple-300 font-medium"
-                    >
-                      Register here
-                    </Link>
-                  </div>
-                )}
-
                 {role.role === "user" && (
-                  <div className="mt-3 text-center text-sm text-gray-400">
+                  <div className="mt-3 text-center text-sm text-gray-500">
                     New user?{" "}
                     <Link
                       to="/register"
-                      className="text-blue-400 hover:text-blue-300 font-medium"
+                      className="text-blue-600 hover:text-blue-700 font-medium"
                     >
                       Register here
                     </Link>
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-dark-card/30">
+      <section id="how-it-works" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-gray-400 text-lg">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              How It Works
+            </h2>
+            <p className="text-gray-600 text-lg">
               Get started in three simple steps
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -286,34 +239,32 @@ const Landing = () => {
                 desc: "Monitor progress and rate your experience",
               },
             ].map((item, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="glass-card p-8 relative"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
+                className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm"
               >
-                <div className="text-6xl font-bold text-neon-blue/20 mb-4">
+                <div className="text-5xl font-bold text-blue-100 mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                <p className="text-gray-400">{item.desc}</p>
-              </motion.div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-gray-500">{item.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark-card border-t border-white/10 py-12">
+      <footer className="bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-neon-blue to-neon-purple rounded-lg flex items-center justify-center">
-                <span className="text-xl font-bold">S</span>
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-xl font-bold text-white">S</span>
               </div>
-              <span className="text-xl font-bold gradient-text">ServeSync</span>
+              <span className="text-xl font-bold text-white">ServeSync</span>
             </div>
             <p className="text-gray-400 text-sm">
               © 2024 ServeSync. All rights reserved.

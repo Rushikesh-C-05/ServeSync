@@ -6,11 +6,8 @@ const ProtectedRoute = ({ role }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-bg">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
-          <div className="absolute inset-0 rounded-full blur-xl bg-neon-blue/20 animate-pulse"></div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -20,7 +17,12 @@ const ProtectedRoute = ({ role }) => {
     return <Navigate to={loginPath} replace />;
   }
 
-  if (user.role !== role) {
+  // Allow providers to access user routes (they are users too)
+  // But don't allow users to access provider/admin routes
+  const hasAccess =
+    user.role === role || (role === "user" && user.role === "provider");
+
+  if (!hasAccess) {
     const loginPath = role === "user" ? "/login" : `/${role}/login`;
     return <Navigate to={loginPath} replace />;
   }

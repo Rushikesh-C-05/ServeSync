@@ -41,6 +41,10 @@ const providerSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  profileImage: {
+    type: String,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

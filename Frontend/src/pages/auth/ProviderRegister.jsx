@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { authAPI, adminAPI } from "../../services/api";
 
 const ProviderRegister = () => {
@@ -192,56 +191,44 @@ const ProviderRegister = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl w-full space-y-8 bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 shadow-2xl"
-      >
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="max-w-2xl w-full space-y-8 bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Provider Registration
           </h2>
-          <p className="text-gray-300 text-sm">
+          <p className="text-gray-500 text-sm">
             Join our platform and start offering your services
           </p>
         </div>
 
         {/* Success Message */}
         {successMessage && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-green-500/20 border border-green-500/50 text-green-200 px-4 py-3 rounded-lg"
-          >
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
             {successMessage}
-          </motion.div>
+          </div>
         )}
 
         {/* Error Message */}
         {errors.submit && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg"
-          >
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {errors.submit}
-          </motion.div>
+          </div>
         )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-white border-b border-white/20 pb-2">
+            <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
               Personal Information
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
                 </label>
                 <input
@@ -249,17 +236,17 @@ const ProviderRegister = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="John Doe"
                 />
                 {errors.name && (
-                  <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.name}</p>
                 )}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email *
                 </label>
                 <input
@@ -267,17 +254,17 @@ const ProviderRegister = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="john@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.email}</p>
                 )}
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password *
                 </label>
                 <input
@@ -285,17 +272,17 @@ const ProviderRegister = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="••••••••"
                 />
                 {errors.password && (
-                  <p className="text-red-400 text-sm mt-1">{errors.password}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.password}</p>
                 )}
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password *
                 </label>
                 <input
@@ -303,11 +290,11 @@ const ProviderRegister = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="••••••••"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-red-400 text-sm mt-1">
+                  <p className="text-red-600 text-sm mt-1">
                     {errors.confirmPassword}
                   </p>
                 )}
@@ -315,7 +302,7 @@ const ProviderRegister = () => {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number *
                 </label>
                 <input
@@ -323,17 +310,17 @@ const ProviderRegister = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="1234567890"
                 />
                 {errors.phone && (
-                  <p className="text-red-400 text-sm mt-1">{errors.phone}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
                 )}
               </div>
 
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Address *
                 </label>
                 <input
@@ -341,11 +328,11 @@ const ProviderRegister = () => {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="123 Main St, City"
                 />
                 {errors.address && (
-                  <p className="text-red-400 text-sm mt-1">{errors.address}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.address}</p>
                 )}
               </div>
             </div>
@@ -353,14 +340,14 @@ const ProviderRegister = () => {
 
           {/* Business Information Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-white border-b border-white/20 pb-2">
+            <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
               Business Information
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Business Name */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Business Name *
                 </label>
                 <input
@@ -368,11 +355,11 @@ const ProviderRegister = () => {
                   name="businessName"
                   value={formData.businessName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="ABC Services"
                 />
                 {errors.businessName && (
-                  <p className="text-red-400 text-sm mt-1">
+                  <p className="text-red-600 text-sm mt-1">
                     {errors.businessName}
                   </p>
                 )}
@@ -380,32 +367,30 @@ const ProviderRegister = () => {
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Service Category *
                 </label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                 >
-                  <option value="" className="bg-gray-800">
-                    Select a category
-                  </option>
+                  <option value="">Select a category</option>
                   {categories.map((cat) => (
-                    <option key={cat} value={cat} className="bg-gray-800">
+                    <option key={cat} value={cat}>
                       {cat}
                     </option>
                   ))}
                 </select>
                 {errors.category && (
-                  <p className="text-red-400 text-sm mt-1">{errors.category}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.category}</p>
                 )}
               </div>
 
               {/* Experience */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Years of Experience *
                 </label>
                 <input
@@ -414,11 +399,11 @@ const ProviderRegister = () => {
                   value={formData.experience}
                   onChange={handleChange}
                   min="0"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="5"
                 />
                 {errors.experience && (
-                  <p className="text-red-400 text-sm mt-1">
+                  <p className="text-red-600 text-sm mt-1">
                     {errors.experience}
                   </p>
                 )}
@@ -426,7 +411,7 @@ const ProviderRegister = () => {
 
               {/* Description */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Business Description *
                 </label>
                 <textarea
@@ -434,11 +419,11 @@ const ProviderRegister = () => {
                   value={formData.description}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+                  className="input-field resize-none"
                   placeholder="Describe your business and services..."
                 />
                 {errors.description && (
-                  <p className="text-red-400 text-sm mt-1">
+                  <p className="text-red-600 text-sm mt-1">
                     {errors.description}
                   </p>
                 )}
@@ -446,7 +431,7 @@ const ProviderRegister = () => {
 
               {/* Certifications */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Certifications (Optional)
                 </label>
                 <input
@@ -454,10 +439,10 @@ const ProviderRegister = () => {
                   name="certifications"
                   value={formData.certifications}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="input-field"
                   placeholder="Comma-separated list (e.g., Licensed Plumber, HVAC Certified)"
                 />
-                <p className="text-gray-400 text-xs mt-1">
+                <p className="text-gray-500 text-xs mt-1">
                   Separate multiple certifications with commas
                 </p>
               </div>
@@ -465,28 +450,26 @@ const ProviderRegister = () => {
           </div>
 
           {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Submitting..." : "Register as Provider"}
-          </motion.button>
+          </button>
         </form>
 
         {/* Login Link */}
         <div className="text-center text-sm">
-          <span className="text-gray-300">Already have an account? </span>
+          <span className="text-gray-500">Already have an account? </span>
           <Link
             to="/provider/login"
-            className="text-blue-400 hover:text-blue-300 font-medium transition"
+            className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
           >
             Login here
           </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

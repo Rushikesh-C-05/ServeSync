@@ -34,9 +34,17 @@ const serviceSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  reviewCount: {
+    type: Number,
+    default: 0,
+  },
   totalBookings: {
     type: Number,
     default: 0,
+  },
+  image: {
+    type: String,
+    default: null,
   },
   createdAt: {
     type: Date,

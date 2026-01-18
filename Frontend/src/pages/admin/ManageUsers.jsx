@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   FiSearch,
   FiEdit,
@@ -9,15 +9,29 @@ import {
   FiMapPin,
   FiLock,
   FiUnlock,
+  FiUserCheck,
+  FiAlertCircle,
+  FiUser,
 } from "react-icons/fi";
-import Navbar from "../../components/Navbar";
+import AdminLayout from "../../components/AdminLayout";
 import StatusBadge from "../../components/StatusBadge";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { adminAPI } from "../../services/api";
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [resetConfirm, setResetConfirm] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
 
   useEffect(() => {
     loadUsers();
@@ -25,13 +39,9 @@ const ManageUsers = () => {
 
   const loadUsers = async () => {
     try {
-      // Fetch users from backend
       const response = await adminAPI.getAllUsers();
       const data = response.data?.data || response.data || [];
-
-      // Filter only regular users (not providers)
-      const regularUsers = data.filter((u) => u.role === "user");
-      setUsers(regularUsers);
+      setUsers(data);
     } catch (error) {
       console.error("Error loading users:", error);
     } finally {
@@ -42,28 +52,58 @@ const ManageUsers = () => {
   const handleToggleBlock = async (userId) => {
     try {
       await adminAPI.toggleBlockUser(userId);
-      // Reload users to reflect changes
+      toast.success("User status updated");
       await loadUsers();
     } catch (error) {
       console.error("Error toggling user block:", error);
-      alert("Failed to update user status");
+      toast.error("Failed to update user status");
+    }
+  };
+
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      await adminAPI.updateUser(editingUser._id, editForm);
+      setShowEditModal(false);
+      await loadUsers();
+      toast.success("User updated successfully");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      toast.error(error.response?.data?.message || "Failed to update user");
     }
   };
 
   const handleDelete = async (userId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this user? This action cannot be undone and will delete all associated bookings and reviews.",
-      )
-    ) {
-      try {
-        await adminAPI.deleteUser(userId);
-        // Remove from local state
-        setUsers(users.filter((u) => u._id !== userId));
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        alert("Failed to delete user");
-      }
+    try {
+      await adminAPI.deleteUser(userId);
+      setUsers(users.filter((u) => u._id !== userId));
+      toast.success("User deleted successfully");
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete user");
+    }
+  };
+
+  const handleResetRejection = async (userId) => {
+    try {
+      await adminAPI.resetProviderRejection(userId);
+      await loadUsers();
+      toast.success("User can now reapply for provider status");
+      setResetConfirm(null);
+    } catch (error) {
+      console.error("Error resetting rejection:", error);
+      toast.error("Failed to reset rejection status");
     }
   };
 
@@ -73,42 +113,24 @@ const ManageUsers = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const navLinks = [
-    { path: "/admin/dashboard", label: "Dashboard" },
-    { path: "/admin/users", label: "Manage Users" },
-    { path: "/admin/providers", label: "Manage Providers" },
-    { path: "/admin/stats", label: "Platform Stats" },
-  ];
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
-      <Navbar role="admin" links={navLinks} />
-
+    <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          className="glass-card p-8 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8">
           <h1 className="text-3xl font-bold mb-2">Manage Users</h1>
-          <p className="text-gray-400">View and manage all platform users</p>
-        </motion.div>
+          <p className="text-gray-500">View and manage all platform users</p>
+        </div>
 
         {/* Search Bar */}
-        <motion.div
-          className="glass-card p-6 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
             <input
@@ -116,18 +138,13 @@ const ManageUsers = () => {
               placeholder="Search users by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10 w-full"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Users List */}
-        <motion.div
-          className="glass-card p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">
               Users ({filteredUsers.length})
@@ -136,45 +153,75 @@ const ManageUsers = () => {
 
           <div className="space-y-4">
             {filteredUsers.map((user) => (
-              <motion.div
+              <div
                 key={user._id}
-                className="glass-card p-6 hover:bg-white/10 transition-colors"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="bg-white border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <h3 className="text-xl font-semibold">{user.name}</h3>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full ${
-                          user.isBlocked
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-neon-green/20 text-neon-green"
-                        }`}
-                      >
-                        {user.isBlocked ? "Blocked" : "Active"}
-                      </span>
+                    <div className="flex items-center space-x-4 mb-3">
+                      {/* User Profile Image */}
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        {user.profileImage ? (
+                          <img
+                            src={user.profileImage}
+                            alt={user.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <FiUser className="text-gray-400" size={20} />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-xl font-semibold">{user.name}</h3>
+                          <span
+                            className={`text-xs px-3 py-1 rounded-full ${
+                              user.isBlocked
+                                ? "bg-red-100 text-red-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {user.isBlocked ? "Blocked" : "Active"}
+                          </span>
+                          {user.role === "provider" && (
+                            <span className="text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-600">
+                              Provider
+                            </span>
+                          )}
+                          {user.providerRejected && (
+                            <span className="text-xs px-3 py-1 rounded-full bg-red-100 text-red-600">
+                              Application Rejected
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-400">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-500 ml-16">
                       <div className="flex items-center space-x-2">
-                        <FiMail className="text-neon-blue" />
+                        <FiMail className="text-blue-600" />
                         <span>{user.email}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <FiPhone className="text-neon-green" />
+                        <FiPhone className="text-green-600" />
                         <span>{user.phone || "N/A"}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <FiMapPin className="text-neon-purple" />
+                        <FiMapPin className="text-indigo-600" />
                         <span>{user.address || "N/A"}</span>
                       </div>
                       <div>
-                        <span className="font-semibold">Status:</span>{" "}
-                        {user.isBlocked ? "Blocked" : "Active"}
+                        <span className="font-semibold">Role:</span> {user.role}
                       </div>
                     </div>
+
+                    {user.providerRejected && user.providerRejectionReason && (
+                      <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                        <FiAlertCircle className="inline mr-2" />
+                        Rejection Reason: {user.providerRejectionReason}
+                      </div>
+                    )}
 
                     <div className="mt-3 text-xs text-gray-500">
                       Joined: {new Date(user.createdAt).toLocaleDateString()}
@@ -182,45 +229,167 @@ const ManageUsers = () => {
                   </div>
 
                   <div className="flex space-x-2">
-                    <motion.button
+                    {user.providerRejected && !user.canReapply && (
+                      <button
+                        onClick={() => setResetConfirm(user._id)}
+                        className="p-2 rounded-lg transition-colors hover:bg-green-100"
+                        title="Allow Reapplication"
+                      >
+                        <FiUserCheck className="text-green-600" />
+                      </button>
+                    )}
+                    <button
                       onClick={() => handleToggleBlock(user._id)}
                       className={`p-2 rounded-lg transition-colors ${
                         user.isBlocked
-                          ? "hover:bg-neon-green/20"
-                          : "hover:bg-orange-500/20"
+                          ? "hover:bg-green-100"
+                          : "hover:bg-orange-100"
                       }`}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
                       title={user.isBlocked ? "Unblock User" : "Block User"}
                     >
                       {user.isBlocked ? (
-                        <FiUnlock className="text-neon-green" />
+                        <FiUnlock className="text-green-600" />
                       ) : (
-                        <FiLock className="text-orange-400" />
+                        <FiLock className="text-orange-500" />
                       )}
-                    </motion.button>
-                    <motion.button
-                      onClick={() => handleDelete(user._id)}
-                      className="p-2 hover:bg-red-500/20 rounded-lg transition-colors group"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
+                    </button>
+                    <button
+                      onClick={() => handleEdit(user)}
+                      className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                      title="Edit User"
                     >
-                      <FiTrash2 className="text-red-400" />
-                    </motion.button>
+                      <FiEdit className="text-blue-600" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(user._id)}
+                      className="p-2 hover:bg-red-100 rounded-lg transition-colors group"
+                    >
+                      <FiTrash2 className="text-red-500" />
+                    </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {filteredUsers.length === 0 && (
-            <p className="text-center text-gray-400 py-12">
+            <p className="text-center text-gray-500 py-12">
               No users found matching your search.
             </p>
           )}
-        </motion.div>
+        </div>
+
+        {/* Edit User Modal */}
+        {showEditModal && editingUser && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-2xl w-full">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Edit User</h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, email: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.phone}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, phone: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, address: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <ConfirmDialog
+          isOpen={!!deleteConfirm}
+          onClose={() => setDeleteConfirm(null)}
+          onConfirm={() => handleDelete(deleteConfirm)}
+          title="Delete User"
+          message="Are you sure you want to delete this user? This action cannot be undone and will delete all associated bookings and reviews."
+          confirmText="Delete"
+          confirmStyle="danger"
+        />
+
+        <ConfirmDialog
+          isOpen={!!resetConfirm}
+          onClose={() => setResetConfirm(null)}
+          onConfirm={() => handleResetRejection(resetConfirm)}
+          title="Allow Reapplication"
+          message="Are you sure you want to allow this user to reapply for provider status?"
+          confirmText="Allow"
+          confirmStyle="primary"
+        />
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

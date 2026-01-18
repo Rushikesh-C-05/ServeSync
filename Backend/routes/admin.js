@@ -16,6 +16,12 @@ router.get(
 );
 router.get("/stats", auth, requireRole("admin"), adminController.getStats);
 router.get("/users", auth, requireRole("admin"), adminController.getAllUsers);
+router.put(
+  "/users/:userId",
+  auth,
+  requireRole("admin"),
+  adminController.updateUser,
+);
 router.patch(
   "/users/:userId/toggle-block",
   auth,
@@ -28,11 +34,23 @@ router.delete(
   requireRole("admin"),
   adminController.deleteUser,
 );
+router.patch(
+  "/users/:userId/reset-rejection",
+  auth,
+  requireRole("admin"),
+  adminController.resetProviderRejection,
+);
 router.get(
   "/providers",
   auth,
   requireRole("admin"),
   adminController.getAllProviders,
+);
+router.put(
+  "/providers/:providerId",
+  auth,
+  requireRole("admin"),
+  adminController.updateProvider,
 );
 router.get(
   "/providers/pending",
@@ -64,11 +82,41 @@ router.get(
   requireRole("admin"),
   adminController.getAllServices,
 );
+router.put(
+  "/services/:serviceId",
+  auth,
+  requireRole("admin"),
+  adminController.updateService,
+);
+router.delete(
+  "/services/:serviceId",
+  auth,
+  requireRole("admin"),
+  adminController.deleteService,
+);
 router.get(
   "/bookings",
   auth,
   requireRole("admin"),
   adminController.getAllBookings,
+);
+router.put(
+  "/bookings/:bookingId",
+  auth,
+  requireRole("admin"),
+  adminController.updateBooking,
+);
+router.patch(
+  "/bookings/:bookingId/status",
+  auth,
+  requireRole("admin"),
+  adminController.updateBookingStatus,
+);
+router.delete(
+  "/bookings/:bookingId",
+  auth,
+  requireRole("admin"),
+  adminController.deleteBooking,
 );
 router.get(
   "/payments",
@@ -94,6 +142,18 @@ router.get(
   requireRole("admin"),
   adminController.getAllReviews,
 );
+router.patch(
+  "/reviews/:reviewId/toggle-visibility",
+  auth,
+  requireRole("admin"),
+  adminController.toggleReviewVisibility,
+);
+router.delete(
+  "/reviews/:reviewId",
+  auth,
+  requireRole("admin"),
+  adminController.deleteReview,
+);
 
 // Category Management Routes
 // GET categories is public (for provider registration)
@@ -117,6 +177,32 @@ router.delete(
   auth,
   requireRole("admin"),
   adminController.deleteCategory,
+);
+
+// Provider Application Management Routes
+router.get(
+  "/provider-applications",
+  auth,
+  requireRole("admin"),
+  adminController.getProviderApplications,
+);
+router.get(
+  "/provider-applications/:id",
+  auth,
+  requireRole("admin"),
+  adminController.getProviderApplication,
+);
+router.patch(
+  "/provider-applications/:id/approve",
+  auth,
+  requireRole("admin"),
+  adminController.approveProviderApplication,
+);
+router.patch(
+  "/provider-applications/:id/reject",
+  auth,
+  requireRole("admin"),
+  adminController.rejectProviderApplication,
 );
 
 export default router;

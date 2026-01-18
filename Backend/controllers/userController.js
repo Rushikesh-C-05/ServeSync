@@ -3,6 +3,7 @@ import Booking from "../models/Booking.js";
 import Review from "../models/Review.js";
 import Service from "../models/Service.js";
 import PlatformConfig from "../models/PlatformConfig.js";
+import ProviderApplication from "../models/ProviderApplication.js";
 import { apiResponse } from "../utils/helpers.js";
 
 // Test endpoint
@@ -190,6 +191,22 @@ export const submitReview = async (req, res) => {
   try {
     const { serviceId, providerId, bookingId, rating, comment } = req.body;
 
+    // Validate rating
+    if (!rating || rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json(apiResponse(false, "Rating must be between 1 and 5"));
+    }
+
+    // Validate comment
+    if (!comment || comment.trim().length < 10) {
+      return res
+        .status(400)
+        .json(
+          apiResponse(false, "Review comment must be at least 10 characters"),
+        );
+    }
+
     // Check if booking exists and is completed
     const booking = await Booking.findOne({
       _id: bookingId,
@@ -218,16 +235,87 @@ export const submitReview = async (req, res) => {
       providerId,
       bookingId,
       rating,
-      comment,
+      comment: comment.trim(),
     });
 
     await review.save();
 
-    res.status(201).json(apiResponse(true, "Review submitted", review));
+    // Update service rating and review count
+    const allServiceReviews = await Review.find({ serviceId });
+    const avgRating =
+      allServiceReviews.reduce((sum, r) => sum + r.rating, 0) /
+      allServiceReviews.length;
+
+    await Service.findByIdAndUpdate(serviceId, {
+      rating: parseFloat(avgRating.toFixed(1)),
+      reviewCount: allServiceReviews.length,
+      updatedAt: Date.now(),
+    });
+
+    // Populate and return the review
+    const populatedReview = await Review.findById(review._id)
+      .populate("userId", "name profileImage")
+      .populate("serviceId", "name")
+      .populate("providerId", "businessName");
+
+    res
+      .status(201)
+      .json(
+        apiResponse(true, "Review submitted successfully", populatedReview),
+      );
   } catch (error) {
     res
       .status(500)
       .json(apiResponse(false, "Failed to submit review", error.message));
+  }
+};
+
+// Check if user can review a booking
+export const canReviewBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    // Check if booking exists and belongs to user
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      userId: req.userId,
+    });
+
+    if (!booking) {
+      return res.status(404).json(apiResponse(false, "Booking not found"));
+    }
+
+    // Check if booking is completed
+    if (booking.status !== "completed") {
+      return res.json(
+        apiResponse(true, "Booking status check", {
+          canReview: false,
+          reason: "Booking must be completed before reviewing",
+        }),
+      );
+    }
+
+    // Check if already reviewed
+    const existingReview = await Review.findOne({ bookingId });
+    if (existingReview) {
+      return res.json(
+        apiResponse(true, "Review check", {
+          canReview: false,
+          reason: "You have already reviewed this booking",
+          review: existingReview,
+        }),
+      );
+    }
+
+    res.json(
+      apiResponse(true, "Can review", {
+        canReview: true,
+      }),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to check review status", error.message));
   }
 };
 
@@ -293,5 +381,118 @@ export const getDashboardStats = async (req, res) => {
     res
       .status(500)
       .json(apiResponse(false, "Failed to get dashboard stats", error.message));
+  }
+};
+
+// Submit provider application
+export const submitProviderApplication = async (req, res) => {
+  try {
+    const {
+      businessName,
+      businessDescription,
+      category,
+      experience,
+      phone,
+      address,
+      certifications,
+      portfolio,
+    } = req.body;
+
+    // Check if user is already a provider
+    const user = await User.findById(req.userId);
+    if (user.role === "provider") {
+      return res
+        .status(400)
+        .json(apiResponse(false, "You are already a provider"));
+    }
+
+    // Check if user was rejected and cannot reapply
+    if (user.providerRejected && !user.canReapply) {
+      return res
+        .status(403)
+        .json(
+          apiResponse(
+            false,
+            `Your previous application was rejected. Reason: ${user.providerRejectionReason}. Please contact admin for further assistance.`,
+          ),
+        );
+    }
+
+    // Check if user already has a pending or approved application
+    const existingApplication = await ProviderApplication.findOne({
+      userId: req.userId,
+      status: { $in: ["pending", "approved"] },
+    });
+
+    if (existingApplication) {
+      return res
+        .status(400)
+        .json(
+          apiResponse(
+            false,
+            existingApplication.status === "approved"
+              ? "You are already a provider"
+              : "You already have a pending application",
+          ),
+        );
+    }
+
+    const application = new ProviderApplication({
+      userId: req.userId,
+      businessName,
+      businessDescription,
+      category,
+      experience,
+      phone,
+      address,
+      certifications,
+      portfolio,
+      businessImage: req.file ? req.file.path : null,
+      status: "pending",
+    });
+
+    await application.save();
+
+    res
+      .status(201)
+      .json(
+        apiResponse(
+          true,
+          "Application submitted successfully. Wait for admin approval.",
+          application,
+        ),
+      );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to submit application", error.message));
+  }
+};
+
+// Get user's provider application status
+export const getProviderApplicationStatus = async (req, res) => {
+  try {
+    const application = await ProviderApplication.findOne({
+      userId: req.userId,
+    }).sort({ submittedAt: -1 });
+
+    if (!application) {
+      return res.json(
+        apiResponse(true, "No application found", { hasApplication: false }),
+      );
+    }
+
+    res.json(
+      apiResponse(true, "Application status retrieved", {
+        hasApplication: true,
+        application,
+      }),
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(
+        apiResponse(false, "Failed to get application status", error.message),
+      );
   }
 };

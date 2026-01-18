@@ -1,36 +1,32 @@
-import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { FiLogOut, FiMenu, FiX } from 'react-icons/fi'
-import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { Link, useLocation } from "react-router-dom";
+import { FiLogOut, FiMenu, FiX, FiUser } from "react-icons/fi";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ role, links }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const { user, logout } = useAuth()
-  const location = useLocation()
-  const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+    logout();
+    navigate("/");
+  };
 
   return (
-    <nav className="glass-card sticky top-0 z-50 border-b border-white/10">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to={`/${role}/dashboard`} className="flex items-center space-x-2">
-            <motion.div 
-              className="w-10 h-10 bg-gradient-to-br from-neon-blue to-neon-purple rounded-lg flex items-center justify-center"
-              whileHover={{ scale: 1.1, rotate: 180 }}
-              transition={{ duration: 0.3 }}
-            >
-              <span className="text-xl font-bold">S</span>
-            </motion.div>
-            <span className="text-xl font-bold gradient-text">
-              ServeSync
-            </span>
+          <Link
+            to={`/${role}/dashboard`}
+            className="flex items-center space-x-2"
+          >
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-xl font-bold text-white">S</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900">ServeSync</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -39,35 +35,50 @@ const Navbar = ({ role, links }) => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors duration-200 ${
+                className={`text-sm font-medium transition-colors ${
                   location.pathname === link.path
-                    ? 'text-neon-blue'
-                    : 'text-gray-300 hover:text-neon-blue'
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600"
                 }`}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="flex items-center space-x-3 pl-4 border-l border-white/10">
-              <div className="text-right">
-                <p className="text-sm font-medium">{user?.name}</p>
-                <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+            <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
+              {/* Profile Image */}
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                {user?.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user?.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FiUser className="text-gray-400" size={20} />
+                )}
               </div>
-              <motion.button
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">
+                  {user?.name}
+                </p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              </div>
+              <button
                 onClick={handleLogout}
-                className="p-2 hover:bg-red-500/10 rounded-lg transition-colors group"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
               >
-                <FiLogOut className="text-red-400 group-hover:text-red-300" size={20} />
-              </motion.button>
+                <FiLogOut
+                  className="text-red-500 hover:text-red-600"
+                  size={20}
+                />
+              </button>
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 hover:bg-white/10 rounded-lg"
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
           >
             {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
@@ -76,11 +87,7 @@ const Navbar = ({ role, links }) => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden border-t border-white/10 bg-dark-card/95 backdrop-blur-lg"
-        >
+        <div className="md:hidden border-t border-gray-200 bg-white">
           <div className="px-4 py-4 space-y-3">
             {links.map((link) => (
               <Link
@@ -89,30 +96,48 @@ const Navbar = ({ role, links }) => {
                 onClick={() => setIsOpen(false)}
                 className={`block py-2 px-4 rounded-lg transition-colors ${
                   location.pathname === link.path
-                    ? 'bg-neon-blue/20 text-neon-blue'
-                    : 'text-gray-300 hover:bg-white/5'
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">{user?.name}</p>
-                <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+            <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {/* Mobile Profile Image */}
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                  {user?.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt={user?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FiUser className="text-gray-400" size={20} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {user?.role}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
               >
-                <FiLogOut className="text-red-400" size={20} />
+                <FiLogOut className="text-red-500" size={20} />
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

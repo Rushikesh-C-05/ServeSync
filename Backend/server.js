@@ -10,6 +10,7 @@ import providerRoutes from "./routes/provider.js";
 import adminRoutes from "./routes/admin.js";
 import serviceRoutes from "./routes/service.js";
 import paymentRoutes from "./routes/payment.js";
+import uploadRoutes from "./routes/upload.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api/provider", providerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/service", serviceRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

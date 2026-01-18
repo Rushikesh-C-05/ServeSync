@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import Navbar from "../../components/Navbar";
 import ServiceCard from "../../components/ServiceCard";
@@ -63,29 +62,28 @@ const BrowseServices = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-gray-50">
       <Navbar role="user" links={navLinks} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-4xl font-bold mb-2">Browse Services</h1>
-          <p className="text-gray-400 mb-8">Explore available services</p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Browse Services
+          </h1>
+          <p className="text-gray-500 mb-8">Explore available services</p>
 
           {/* Search and Filter */}
-          <div className="glass-card p-6 mb-8">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search services..."
@@ -102,10 +100,10 @@ const BrowseServices = () => {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                         selectedCategory === cat
-                          ? "bg-neon-blue text-white"
-                          : "bg-dark-card text-gray-400 hover:bg-white/10"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -129,12 +127,12 @@ const BrowseServices = () => {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-gray-400 text-lg">
+              <p className="text-gray-500 text-lg">
                 No services found matching your criteria
               </p>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

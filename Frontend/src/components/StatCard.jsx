@@ -1,28 +1,35 @@
-import { motion } from 'framer-motion'
+const iconColors = {
+  blue: "bg-blue-100 text-blue-600",
+  green: "bg-green-100 text-green-600",
+  purple: "bg-purple-100 text-purple-600",
+  amber: "bg-amber-100 text-amber-600",
+  red: "bg-red-100 text-red-600",
+  indigo: "bg-indigo-100 text-indigo-600",
+};
 
-const StatCard = ({ icon: Icon, label, value, color = 'neon-blue', trend }) => {
+const StatCard = ({ icon: Icon, label, value, color = "blue", trend }) => {
+  const colorClass = iconColors[color] || iconColors.blue;
+
   return (
-    <motion.div
-      className="glass-card p-6"
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
+    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-gray-400 text-sm mb-2">{label}</p>
-          <h3 className="text-3xl font-bold">{value}</h3>
+          <p className="text-gray-500 text-sm mb-1">{label}</p>
+          <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
           {trend && (
-            <p className={`text-sm mt-2 ${trend > 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last month
+            <p
+              className={`text-sm mt-2 ${trend > 0 ? "text-green-600" : "text-red-600"}`}
+            >
+              {trend > 0 ? "↑" : "↓"} {Math.abs(trend)}% from last month
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg bg-${color}/10`}>
-          <Icon className={`text-${color} text-2xl`} />
+        <div className={`p-3 rounded-lg ${colorClass}`}>
+          <Icon className="text-xl" />
         </div>
       </div>
-    </motion.div>
-  )
-}
+    </div>
+  );
+};
 
-export default StatCard
+export default StatCard;

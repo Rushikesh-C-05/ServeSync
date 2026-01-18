@@ -175,6 +175,9 @@ export const createService = async (req, res) => {
         .json(apiResponse(false, "Provider not approved yet"));
     }
 
+    // Get service image URL if uploaded
+    const image = req.file ? req.file.path : null;
+
     // Create service
     const service = new Service({
       providerId: provider._id,
@@ -183,6 +186,7 @@ export const createService = async (req, res) => {
       category,
       price,
       duration,
+      image,
       isAvailable: true,
     });
 
@@ -474,14 +478,87 @@ export const getReviews = async (req, res) => {
     }
 
     const reviews = await Review.find({ providerId: provider._id })
-      .populate("userId", "name")
+      .populate("userId", "name profileImage")
       .populate("serviceId", "name")
       .sort({ createdAt: -1 });
 
-    res.json(apiResponse(true, "Reviews retrieved", reviews));
+    // Calculate stats
+    const totalReviews = reviews.length;
+    const avgRating =
+      totalReviews > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+        : 0;
+
+    // Rating distribution
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((r) => {
+      distribution[r.rating]++;
+    });
+
+    res.json(
+      apiResponse(true, "Reviews retrieved", {
+        reviews,
+        stats: {
+          totalReviews,
+          averageRating: parseFloat(avgRating.toFixed(1)),
+          distribution,
+        },
+      }),
+    );
   } catch (error) {
     res
       .status(500)
       .json(apiResponse(false, "Failed to get reviews", error.message));
+  }
+};
+
+// Respond to a review
+export const respondToReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { response } = req.body;
+
+    if (!response || response.trim().length < 10) {
+      return res
+        .status(400)
+        .json(apiResponse(false, "Response must be at least 10 characters"));
+    }
+
+    const provider = await Provider.findOne({ userId: req.userId });
+    if (!provider) {
+      return res.status(404).json(apiResponse(false, "Provider not found"));
+    }
+
+    const review = await Review.findOne({
+      _id: reviewId,
+      providerId: provider._id,
+    });
+
+    if (!review) {
+      return res.status(404).json(apiResponse(false, "Review not found"));
+    }
+
+    if (review.providerResponse && review.providerResponse.text) {
+      return res
+        .status(400)
+        .json(apiResponse(false, "You have already responded to this review"));
+    }
+
+    review.providerResponse = {
+      text: response.trim(),
+      respondedAt: new Date(),
+    };
+    review.updatedAt = new Date();
+    await review.save();
+
+    const updatedReview = await Review.findById(reviewId)
+      .populate("userId", "name profileImage")
+      .populate("serviceId", "name");
+
+    res.json(apiResponse(true, "Response added successfully", updatedReview));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to respond to review", error.message));
   }
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   FiStar,
   FiClock,
@@ -8,8 +8,11 @@ import {
   FiCalendar,
   FiMapPin,
   FiCreditCard,
+  FiPackage,
+  FiUser,
 } from "react-icons/fi";
 import Navbar from "../../components/Navbar";
+import ServiceReviews from "../../components/ServiceReviews";
 import { serviceAPI, userAPI, paymentAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -52,11 +55,11 @@ const BookingDetails = () => {
 
   const handleBooking = () => {
     if (!selectedDate || !selectedTime) {
-      alert("Please select date and time");
+      toast.error("Please select date and time");
       return;
     }
     if (!address.trim()) {
-      alert("Please enter service address");
+      toast.error("Please enter service address");
       return;
     }
     setShowPayment(true);
@@ -95,7 +98,7 @@ const BookingDetails = () => {
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        alert("Failed to load payment gateway. Please try again.");
+        toast.error("Failed to load payment gateway. Please try again.");
         setProcessing(false);
         return;
       }
@@ -124,11 +127,11 @@ const BookingDetails = () => {
 
             await paymentAPI.verifyPayment(verifyData);
 
-            alert("Payment successful! Booking confirmed.");
+            toast.success("Payment successful! Booking confirmed.");
             navigate("/user/bookings");
           } catch (error) {
             console.error("Payment verification error:", error);
-            alert("Payment verification failed. Please contact support.");
+            toast.error("Payment verification failed. Please contact support.");
           }
         },
         prefill: {
@@ -142,7 +145,9 @@ const BookingDetails = () => {
         modal: {
           ondismiss: function () {
             setProcessing(false);
-            alert("Payment cancelled. Your booking is still pending payment.");
+            toast("Payment cancelled. Your booking is still pending payment.", {
+              icon: "⚠️",
+            });
           },
         },
       };
@@ -154,7 +159,7 @@ const BookingDetails = () => {
       console.error("Payment error:", error);
       const errorMsg =
         error.response?.data?.message || "Payment failed. Please try again.";
-      alert(errorMsg);
+      toast.error(errorMsg);
       setProcessing(false);
     }
   };
@@ -167,61 +172,68 @@ const BookingDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (!service) {
     return (
-      <div className="min-h-screen bg-dark-bg">
+      <div className="min-h-screen bg-gray-50">
         <Navbar role="user" links={navLinks} />
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-          <p className="text-gray-400">Service not found</p>
+          <p className="text-gray-500">Service not found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-gray-50">
       <Navbar role="user" links={navLinks} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div>
           {/* Service Details */}
-          <div className="glass-card overflow-hidden mb-8">
-            <div className="h-64 md:h-96 overflow-hidden">
-              <img
-                src={service.image || "https://via.placeholder.com/800x400"}
-                alt={service.name}
-                className="w-full h-full object-cover"
-              />
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8">
+            <div className="h-64 md:h-96 overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600">
+              {service.image ? (
+                <img
+                  src={service.image}
+                  alt={service.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <FiPackage className="w-24 h-24 text-white/50" />
+                </div>
+              )}
             </div>
 
             <div className="p-8">
-              <h1 className="text-4xl font-bold mb-4">{service.name}</h1>
-              <p className="text-gray-400 mb-6">{service.description}</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                {service.name}
+              </h1>
+              <p className="text-gray-600 mb-6">{service.description}</p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="flex items-center space-x-2">
-                  <FiStar className="text-yellow-400 fill-current" />
-                  <span className="font-semibold">{service.rating}</span>
+                  <FiStar className="text-amber-500 fill-current" />
+                  <span className="font-semibold text-gray-900">
+                    {service.rating || 0}
+                  </span>
                   <span className="text-gray-500">
-                    ({service.reviews} reviews)
+                    ({service.reviewCount || 0} reviews)
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-400">
+                <div className="flex items-center space-x-2 text-gray-600">
                   <FiClock />
                   <span>{service.duration}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <FiDollarSign className="text-neon-green" />
-                  <span className="text-2xl font-bold text-neon-green">
+                  <FiDollarSign className="text-green-600" />
+                  <span className="text-2xl font-bold text-green-600">
                     ₹{service.price}
                   </span>
                 </div>
@@ -231,12 +243,14 @@ const BookingDetails = () => {
 
           {!showPayment ? (
             /* Booking Form */
-            <div className="glass-card p-8">
-              <h2 className="text-2xl font-bold mb-6">Select Date & Time</h2>
+            <div className="bg-white border border-gray-200 rounded-lg p-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Select Date & Time
+              </h2>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center">
+                  <label className="flex items-center text-sm font-medium mb-2 text-gray-700">
                     <FiCalendar className="mr-2" />
                     Select Date
                   </label>
@@ -250,7 +264,7 @@ const BookingDetails = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center">
+                  <label className="flex items-center text-sm font-medium mb-2 text-gray-700">
                     <FiClock className="mr-2" />
                     Select Time Slot
                   </label>
@@ -259,10 +273,10 @@ const BookingDetails = () => {
                       <button
                         key={time}
                         onClick={() => setSelectedTime(time)}
-                        className={`p-3 rounded-lg border transition-all ${
+                        className={`p-3 rounded-lg border transition-colors ${
                           selectedTime === time
-                            ? "bg-neon-blue border-neon-blue text-white"
-                            : "bg-dark-card border-white/20 hover:border-neon-blue"
+                            ? "bg-blue-600 border-blue-600 text-white"
+                            : "bg-white border-gray-200 hover:border-blue-600 text-gray-700"
                         }`}
                       >
                         {time}
@@ -272,7 +286,7 @@ const BookingDetails = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center">
+                  <label className="flex items-center text-sm font-medium mb-2 text-gray-700">
                     <FiMapPin className="mr-2" />
                     Service Address
                   </label>
@@ -286,7 +300,7 @@ const BookingDetails = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
                     Additional Notes (Optional)
                   </label>
                   <textarea
@@ -298,57 +312,58 @@ const BookingDetails = () => {
                   />
                 </div>
 
-                <motion.button
-                  onClick={handleBooking}
-                  className="btn-primary w-full"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+                <button onClick={handleBooking} className="btn-primary w-full">
                   Proceed to Payment
-                </motion.button>
+                </button>
               </div>
             </div>
           ) : (
             /* Payment Modal */
-            <div className="glass-card p-8">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <FiCreditCard className="mr-3 text-neon-blue" />
+            <div className="bg-white border border-gray-200 rounded-lg p-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <FiCreditCard className="mr-3 text-blue-600" />
                 Payment Details
               </h2>
 
-              <div className="bg-dark-card p-6 rounded-lg mb-6">
-                <h3 className="font-semibold mb-4">Booking Summary</h3>
+              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  Booking Summary
+                </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Service</span>
-                    <span>{service.name}</span>
+                    <span className="text-gray-500">Service</span>
+                    <span className="text-gray-900">{service.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Date & Time</span>
-                    <span>
+                    <span className="text-gray-500">Date & Time</span>
+                    <span className="text-gray-900">
                       {selectedDate} at {selectedTime}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Service Fee</span>
-                    <span>₹{service.price?.toFixed(2)}</span>
+                    <span className="text-gray-500">Service Fee</span>
+                    <span className="text-gray-900">
+                      ₹{service.price?.toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Platform Fee (10%)</span>
-                    <span>₹{(service.price * 0.1).toFixed(2)}</span>
+                    <span className="text-gray-500">Platform Fee (10%)</span>
+                    <span className="text-gray-900">
+                      ₹{(service.price * 0.1).toFixed(2)}
+                    </span>
                   </div>
-                  <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span className="text-neon-green">
+                  <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-lg">
+                    <span className="text-gray-900">Total</span>
+                    <span className="text-green-600">
                       ₹{(service.price * 1.1).toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-dark-card p-4 rounded-lg mb-6 border border-neon-blue/20">
-                <p className="text-sm text-gray-300 flex items-center">
-                  <FiCreditCard className="mr-2 text-neon-blue" />
+              <div className="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-200">
+                <p className="text-sm text-gray-700 flex items-center">
+                  <FiCreditCard className="mr-2 text-blue-600" />
                   Payment powered by Razorpay - Secure & Fast
                 </p>
               </div>
@@ -361,19 +376,24 @@ const BookingDetails = () => {
                 >
                   Back
                 </button>
-                <motion.button
+                <button
                   onClick={handlePayment}
                   className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                  whileHover={!processing ? { scale: 1.02 } : {}}
-                  whileTap={!processing ? { scale: 0.98 } : {}}
                   disabled={processing}
                 >
                   {processing ? "Processing..." : "Pay with Razorpay"}
-                </motion.button>
+                </button>
               </div>
             </div>
           )}
-        </motion.div>
+
+          {/* Reviews Section */}
+          {!showPayment && service && (
+            <div className="mt-8">
+              <ServiceReviews serviceId={service._id} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

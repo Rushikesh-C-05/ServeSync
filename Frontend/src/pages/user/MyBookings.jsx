@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   FiClock,
   FiCalendar,
@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import Navbar from "../../components/Navbar";
 import StatusBadge from "../../components/StatusBadge";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { useAuth } from "../../context/AuthContext";
 import { userAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +20,7 @@ const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [cancelConfirm, setCancelConfirm] = useState(null);
 
   useEffect(() => {
     loadBookings();
@@ -37,15 +39,14 @@ const MyBookings = () => {
   };
 
   const handleCancelBooking = async (bookingId) => {
-    if (!confirm("Are you sure you want to cancel this booking?")) return;
-
     try {
       await userAPI.cancelBooking(user.id, bookingId);
-      alert("Booking cancelled successfully");
+      toast.success("Booking cancelled successfully");
+      setCancelConfirm(null);
       loadBookings();
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      alert(error.response?.data?.message || "Failed to cancel booking");
+      toast.error(error.response?.data?.message || "Failed to cancel booking");
     }
   };
 
@@ -62,36 +63,33 @@ const MyBookings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-gray-50">
       <Navbar role="user" links={navLinks} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-4xl font-bold mb-2">My Bookings</h1>
-          <p className="text-gray-400 mb-8">Manage your service bookings</p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">My Bookings</h1>
+          <p className="text-gray-500 mb-8">Manage your service bookings</p>
 
           {/* Filter Tabs */}
-          <div className="glass-card p-4 mb-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
             <div className="flex space-x-2 overflow-x-auto">
               {["all", "pending", "accepted", "completed", "cancelled"].map(
                 (status) => (
                   <button
                     key={status}
                     onClick={() => setFilter(status)}
-                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
+                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
                       filter === status
-                        ? "bg-neon-blue text-white"
-                        : "bg-dark-card text-gray-400 hover:bg-white/10"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -105,20 +103,18 @@ const MyBookings = () => {
           <div className="space-y-4">
             {filteredBookings.length > 0 ? (
               filteredBookings.map((booking) => (
-                <motion.div
+                <div
                   key={booking._id}
-                  className="glass-card p-6 hover:bg-white/5 transition-colors"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-xl font-bold mb-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">
                             {booking.serviceId?.name || "Service"}
                           </h3>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-gray-500">
                             Provider:{" "}
                             {booking.providerId?.businessName || "N/A"}
                           </p>
@@ -127,33 +123,33 @@ const MyBookings = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div className="flex items-center text-gray-300">
-                          <FiCalendar className="mr-2 text-neon-blue" />
+                        <div className="flex items-center text-gray-600">
+                          <FiCalendar className="mr-2 text-blue-600" />
                           <span>
                             {new Date(booking.bookingDate).toLocaleDateString()}
                           </span>
                         </div>
-                        <div className="flex items-center text-gray-300">
-                          <FiClock className="mr-2 text-neon-blue" />
+                        <div className="flex items-center text-gray-600">
+                          <FiClock className="mr-2 text-blue-600" />
                           <span>{booking.bookingTime}</span>
                         </div>
-                        <div className="flex items-center text-gray-300">
-                          <FiMapPin className="mr-2 text-neon-blue" />
+                        <div className="flex items-center text-gray-600">
+                          <FiMapPin className="mr-2 text-blue-600" />
                           <span className="truncate">
                             {booking.userAddress}
                           </span>
                         </div>
-                        <div className="flex items-center text-gray-300">
-                          <FiDollarSign className="mr-2 text-neon-green" />
-                          <span className="font-bold text-neon-green">
+                        <div className="flex items-center text-gray-600">
+                          <FiDollarSign className="mr-2 text-green-600" />
+                          <span className="font-bold text-green-600">
                             ${booking.totalAmount?.toFixed(2)}
                           </span>
                         </div>
                       </div>
 
                       {booking.notes && (
-                        <div className="mt-3 p-3 bg-dark-card rounded-lg">
-                          <p className="text-sm text-gray-400">
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-600">
                             <span className="font-semibold">Notes:</span>{" "}
                             {booking.notes}
                           </p>
@@ -164,7 +160,7 @@ const MyBookings = () => {
                     <div className="flex lg:flex-col gap-2">
                       {booking.status === "pending" && (
                         <button
-                          onClick={() => handleCancelBooking(booking._id)}
+                          onClick={() => setCancelConfirm(booking._id)}
                           className="btn-secondary flex items-center justify-center gap-2"
                         >
                           <FiX />
@@ -183,11 +179,11 @@ const MyBookings = () => {
                       )}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))
             ) : (
-              <div className="glass-card p-12 text-center">
-                <p className="text-gray-400 text-lg mb-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <p className="text-gray-500 text-lg mb-4">
                   {filter === "all"
                     ? "No bookings found"
                     : `No ${filter} bookings`}
@@ -201,8 +197,18 @@ const MyBookings = () => {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!cancelConfirm}
+        onClose={() => setCancelConfirm(null)}
+        onConfirm={() => handleCancelBooking(cancelConfirm)}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking?"
+        confirmText="Cancel Booking"
+        confirmStyle="danger"
+      />
     </div>
   );
 };

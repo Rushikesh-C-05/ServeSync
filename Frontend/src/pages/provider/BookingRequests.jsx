@@ -1,51 +1,49 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
+  FiCalendar,
   FiClock,
-  FiCheckCircle,
-  FiXCircle,
   FiUser,
   FiMapPin,
-  FiPhone,
+  FiCheckCircle,
+  FiXCircle,
+  FiEye,
 } from "react-icons/fi";
-import Navbar from "../../components/Navbar";
-import StatusBadge from "../../components/StatusBadge";
-import { useAuth } from "../../context/AuthContext";
 import { providerAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
+import StatusBadge from "../../components/StatusBadge";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const BookingRequests = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
-  const [filter, setFilter] = useState("all"); // all, pending, accepted, completed
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+    confirmText: "Confirm",
+    confirmStyle: "primary",
+  });
 
   useEffect(() => {
-    loadBookings();
-  }, []);
+    if (user?.id) {
+      fetchBookings();
+    }
+  }, [user?.id]);
 
-  const loadBookings = async () => {
+  const fetchBookings = async () => {
     try {
+      setLoading(true);
       const response = await providerAPI.getBookingRequests(user.id);
-      const data = response.data?.data || response.data;
-      
-      // Format bookings data
-      const formattedBookings = (data || []).map((booking) => ({
-        _id: booking._id,
-        serviceName: booking.serviceId?.name || "Service",
-        customerName: booking.userId?.name || "Customer",
-        customerPhone: booking.userId?.phone || "N/A",
-        customerAddress: booking.address || "N/A",
-        bookingDate: booking.bookingDate,
-        bookingTime: booking.bookingTime,
-        status: booking.status,
-        totalAmount: booking.totalAmount || 0,
-        notes: booking.notes || "",
-      }));
-
-      setBookings(formattedBookings);
+      setBookings(response.data?.data || []);
     } catch (error) {
-      console.error("Error loading bookings:", error);
-      alert(error.response?.data?.message || "Failed to load bookings");
+      console.error("Error fetching bookings:", error);
+      toast.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
@@ -54,199 +52,347 @@ const BookingRequests = () => {
   const handleAccept = async (bookingId) => {
     try {
       await providerAPI.acceptBooking(user.id, bookingId);
-      alert("Booking accepted successfully!");
-      loadBookings();
+      toast.success("Booking accepted successfully");
+      fetchBookings();
     } catch (error) {
       console.error("Error accepting booking:", error);
-      alert(error.response?.data?.message || "Failed to accept booking");
+      toast.error("Failed to accept booking");
     }
   };
 
-  const handleReject = async (bookingId) => {
-    if (window.confirm("Are you sure you want to reject this booking?")) {
-      try {
-        await providerAPI.rejectBooking(user.id, bookingId);
-        alert("Booking rejected successfully!");
-        loadBookings();
-      } catch (error) {
-        console.error("Error rejecting booking:", error);
-        alert(error.response?.data?.message || "Failed to reject booking");
-      }
-    }
+  const handleReject = (bookingId) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Reject Booking",
+      message:
+        "Are you sure you want to reject this booking? This action cannot be undone.",
+      confirmText: "Reject",
+      confirmStyle: "danger",
+      onConfirm: async () => {
+        try {
+          await providerAPI.rejectBooking(user.id, bookingId);
+          toast.success("Booking rejected");
+          fetchBookings();
+        } catch (error) {
+          console.error("Error rejecting booking:", error);
+          toast.error("Failed to reject booking");
+        }
+      },
+    });
   };
 
-  const handleComplete = async (bookingId) => {
-    if (window.confirm("Mark this booking as completed?")) {
-      try {
-        await providerAPI.completeBooking(user.id, bookingId);
-        alert("Booking marked as completed!");
-        loadBookings();
-      } catch (error) {
-        console.error("Error completing booking:", error);
-        alert(error.response?.data?.message || "Failed to complete booking");
-      }
-    }
+  const handleComplete = (bookingId) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Complete Booking",
+      message:
+        "Are you sure you want to mark this booking as completed? Make sure the service has been fully delivered.",
+      confirmText: "Mark Complete",
+      confirmStyle: "primary",
+      onConfirm: async () => {
+        try {
+          await providerAPI.completeBooking(user.id, bookingId);
+          toast.success("Booking marked as completed");
+          fetchBookings();
+        } catch (error) {
+          console.error("Error completing booking:", error);
+          toast.error("Failed to complete booking");
+        }
+      },
+    });
   };
 
-  const filteredBookings = bookings.filter(
-    (booking) => filter === "all" || booking.status === filter,
-  );
+  const filteredBookings = bookings.filter((booking) => {
+    if (filter === "all") return true;
+    return booking.status === filter;
+  });
 
-  const navLinks = [
-    { path: "/provider/dashboard", label: "Dashboard" },
-    { path: "/provider/services", label: "My Services" },
-    { path: "/provider/requests", label: "Booking Requests" },
-    { path: "/provider/earnings", label: "Earnings" },
-  ];
+  const handleViewDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowModal(true);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
-      <Navbar role="provider" links={navLinks} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          className="glass-card p-8 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold mb-2">Booking Requests</h1>
-          <p className="text-gray-400">Manage your booking requests</p>
-        </motion.div>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Booking Requests</h1>
+          <p className="text-gray-500 mt-1">
+            Manage your incoming booking requests
+          </p>
+        </div>
 
         {/* Filter Tabs */}
-        <motion.div
-          className="glass-card p-4 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="flex space-x-2 overflow-x-auto">
-            {["all", "pending", "accepted", "completed"].map((f) => (
+        <div className="bg-white border border-gray-200 rounded-lg p-2 mb-6 inline-flex">
+          {["all", "pending", "accepted", "completed", "rejected"].map(
+            (status) => (
               <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg capitalize transition-colors whitespace-nowrap ${
-                  filter === f
-                    ? "bg-neon-purple text-white"
-                    : "glass-card hover:bg-white/10"
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-4 py-2 rounded-md capitalize transition-colors ${
+                  filter === status
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                {f}
+                {status}
               </button>
-            ))}
-          </div>
-        </motion.div>
+            ),
+          )}
+        </div>
 
         {/* Bookings List */}
-        <div className="space-y-4">
-          {filteredBookings.map((booking) => (
-            <motion.div
-              key={booking._id}
-              className="glass-card p-6 hover:bg-white/10 transition-colors"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <h3 className="text-xl font-semibold">
-                      {booking.serviceName}
-                    </h3>
-                    <StatusBadge status={booking.status} />
+        {filteredBookings.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+            <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-600 mb-2">
+              No bookings found
+            </h3>
+            <p className="text-gray-400">
+              {filter === "all"
+                ? "You don't have any bookings yet"
+                : `No ${filter} bookings`}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredBookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-lg font-bold text-gray-800">
+                        {booking.serviceId?.name || "Service"}
+                      </h3>
+                      <StatusBadge status={booking.status} />
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="flex items-center text-gray-500">
+                        <FiUser className="w-4 h-4 mr-2" />
+                        <span>{booking.userId?.name || "Customer"}</span>
+                      </div>
+                      <div className="flex items-center text-gray-500">
+                        <FiCalendar className="w-4 h-4 mr-2" />
+                        <span>
+                          {new Date(booking.bookingDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-gray-500">
+                        <FiClock className="w-4 h-4 mr-2" />
+                        <span>{booking.bookingTime}</span>
+                      </div>
+                      <div className="flex items-center text-green-600 font-medium">
+                        ${booking.totalAmount?.toFixed(2)}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
-                    <div className="flex items-center space-x-2 text-gray-400">
-                      <FiUser className="text-neon-blue" />
-                      <span>{booking.customerName}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-gray-400">
-                      <FiPhone className="text-neon-green" />
-                      <span>{booking.customerPhone}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-gray-400">
-                      <FiMapPin className="text-neon-purple" />
-                      <span>{booking.customerAddress}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-gray-400">
-                      <FiClock className="text-orange-500" />
-                      <span>
-                        {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
-                        {booking.bookingTime}
-                      </span>
-                    </div>
-                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    <button
+                      onClick={() => handleViewDetails(booking)}
+                      className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                      title="View Details"
+                    >
+                      <FiEye className="w-5 h-5" />
+                    </button>
 
-                  {booking.notes && (
-                    <div className="glass-card p-3 mt-3">
-                      <p className="text-sm text-gray-400">Notes:</p>
-                      <p className="text-sm">{booking.notes}</p>
-                    </div>
-                  )}
+                    {booking.status === "pending" && (
+                      <>
+                        <button
+                          onClick={() => handleAccept(booking._id)}
+                          className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
+                          title="Accept"
+                        >
+                          <FiCheckCircle className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleReject(booking._id)}
+                          className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                          title="Reject"
+                        >
+                          <FiXCircle className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status === "accepted" && (
+                      <button
+                        onClick={() => handleComplete(booking._id)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        Mark Complete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Booking Details Modal */}
+        {showModal && selectedBooking && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Booking Details
+                  </h2>
+                  <p className="text-gray-500 text-sm">
+                    #{selectedBooking._id?.slice(-8)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    {selectedBooking.serviceId?.name}
+                  </h3>
+                  <StatusBadge status={selectedBooking.status} />
                 </div>
 
-                <div className="mt-4 lg:mt-0 lg:ml-6 flex flex-col items-end space-y-3">
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-neon-green">
-                      ${booking.totalAmount.toFixed(2)}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Customer</p>
+                    <p className="font-medium">
+                      {selectedBooking.userId?.name}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {selectedBooking.userId?.email}
+                    </p>
+                    {selectedBooking.userId?.phone && (
+                      <p className="text-sm text-gray-400">
+                        {selectedBooking.userId?.phone}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Amount</p>
+                    <p className="text-xl font-bold text-green-600">
+                      ${selectedBooking.totalAmount?.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Service: ${selectedBooking.serviceAmount?.toFixed(2)} |
+                      Platform Fee: ${selectedBooking.platformFee?.toFixed(2)}
                     </p>
                   </div>
+                </div>
 
-                  {booking.status === "pending" && (
-                    <div className="flex space-x-2">
-                      <motion.button
-                        onClick={() => handleAccept(booking._id)}
-                        className="glass-card px-4 py-2 hover:bg-neon-green/20 transition-colors flex items-center space-x-2"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                <div>
+                  <p className="text-sm text-gray-500">Service Address</p>
+                  <div className="flex items-start mt-1">
+                    <FiMapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                    <p className="text-gray-600">
+                      {selectedBooking.userAddress}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Date</p>
+                    <p className="font-medium">
+                      {new Date(
+                        selectedBooking.bookingDate,
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Time</p>
+                    <p className="font-medium">{selectedBooking.bookingTime}</p>
+                  </div>
+                </div>
+
+                {selectedBooking.notes && (
+                  <div>
+                    <p className="text-sm text-gray-500">Notes</p>
+                    <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      {selectedBooking.notes}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Close
+                  </button>
+                  {selectedBooking.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleAccept(selectedBooking._id);
+                          setShowModal(false);
+                        }}
+                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
-                        <FiCheckCircle className="text-neon-green" />
-                        <span>Accept</span>
-                      </motion.button>
-                      <motion.button
-                        onClick={() => handleReject(booking._id)}
-                        className="glass-card px-4 py-2 hover:bg-red-500/20 transition-colors flex items-center space-x-2"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowModal(false);
+                          handleReject(selectedBooking._id);
+                        }}
+                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       >
-                        <FiXCircle className="text-red-400" />
-                        <span>Reject</span>
-                      </motion.button>
-                    </div>
+                        Reject
+                      </button>
+                    </>
                   )}
-
-                  {booking.status === "accepted" && (
-                    <motion.button
-                      onClick={() => handleComplete(booking._id)}
-                      className="glass-card px-4 py-2 hover:bg-neon-blue/20 transition-colors flex items-center space-x-2"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                  {selectedBooking.status === "accepted" && (
+                    <button
+                      onClick={() => {
+                        setShowModal(false);
+                        handleComplete(selectedBooking._id);
+                      }}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      <FiCheckCircle className="text-neon-blue" />
-                      <span>Mark Complete</span>
-                    </motion.button>
+                      Mark Complete
+                    </button>
                   )}
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {filteredBookings.length === 0 && (
-          <div className="glass-card p-12 text-center">
-            <p className="text-gray-400">
-              No {filter !== "all" && filter} bookings found.
-            </p>
+            </div>
           </div>
         )}
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+          onConfirm={() => {
+            confirmDialog.onConfirm();
+            setConfirmDialog({ ...confirmDialog, isOpen: false });
+          }}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmText={confirmDialog.confirmText}
+          confirmStyle={confirmDialog.confirmStyle}
+        />
       </div>
     </div>
   );

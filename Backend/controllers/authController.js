@@ -15,6 +15,9 @@ export const register = async (req, res) => {
         .json(apiResponse(false, "Email already registered"));
     }
 
+    // Get profile image URL if uploaded
+    const profileImage = req.file ? req.file.path : null;
+
     // Create new user
     const user = new User({
       email,
@@ -23,6 +26,7 @@ export const register = async (req, res) => {
       phone,
       address,
       role: "user",
+      profileImage,
     });
 
     await user.save();
@@ -41,79 +45,17 @@ export const register = async (req, res) => {
   }
 };
 
-// Register new provider
-export const registerProvider = async (req, res) => {
-  try {
-    const {
-      email,
-      password,
-      name,
-      phone,
-      address,
-      businessName,
-      description,
-      category,
-      experience,
-      certifications,
-    } = req.body;
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json(apiResponse(false, "Email already registered"));
-    }
-
-    // Create new user with provider role
-    const user = new User({
-      email,
-      password,
-      name,
-      phone,
-      address,
-      role: "user", // Start as user, will be updated to provider after approval
-    });
-
-    await user.save();
-
-    // Create provider profile
-    const provider = new Provider({
-      userId: user._id,
-      businessName,
-      description,
-      category,
-      experience: experience || 0,
-      certifications: certifications || [],
-      status: "pending", // Requires admin approval
-    });
-
-    await provider.save();
-
-    // Remove password from response
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    res.status(201).json(
-      apiResponse(true, "Provider registration submitted for approval", {
-        user: userObj,
-        provider,
-      }),
-    );
-  } catch (error) {
-    res
-      .status(500)
-      .json(apiResponse(false, "Registration failed", error.message));
-  }
-};
-
 // User login
 export const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email, role: "user" });
+    // Find user - allow both 'user' and 'provider' roles to login through user portal
+    // Providers are also users and should be able to access user features
+    const user = await User.findOne({
+      email,
+      role: { $in: ["user", "provider"] },
+    });
     if (!user) {
       return res.status(401).json(apiResponse(false, "Invalid credentials"));
     }

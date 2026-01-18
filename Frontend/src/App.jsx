@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -12,7 +13,6 @@ import Landing from "./pages/public/Landing";
 import UserLogin from "./pages/auth/UserLogin";
 import UserRegister from "./pages/auth/UserRegister";
 import ProviderLogin from "./pages/auth/ProviderLogin";
-import ProviderRegister from "./pages/auth/ProviderRegister";
 import AdminLogin from "./pages/auth/AdminLogin";
 
 // Redirect Components
@@ -21,8 +21,8 @@ const AdminRedirect = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-bg">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
@@ -39,8 +39,8 @@ const ProviderRedirect = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-bg">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
@@ -58,19 +58,24 @@ import BrowseServices from "./pages/user/BrowseServices";
 import BookingDetails from "./pages/user/BookingDetails";
 import MyBookings from "./pages/user/MyBookings";
 import BecomeProvider from "./pages/user/BecomeProvider";
+import WriteReview from "./pages/user/WriteReview";
 
 // Provider Pages
 import ProviderDashboard from "./pages/provider/ProviderDashboard";
-import ManageServices from "./pages/provider/ManageServices";
+import ProviderManageServices from "./pages/provider/ManageServices";
 import BookingRequests from "./pages/provider/BookingRequests";
 import Earnings from "./pages/provider/Earnings";
+import ProviderReviews from "./pages/provider/Reviews";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageProviders from "./pages/admin/ManageProviders";
+import AdminManageServices from "./pages/admin/ManageServices";
+import AdminManageBookings from "./pages/admin/ManageBookings";
 import ManageCategories from "./pages/admin/ManageCategories";
-import PlatformStats from "./pages/admin/PlatformStats";
+import ManageApplications from "./pages/admin/ManageApplications";
+import ManageReviews from "./pages/admin/ManageReviews";
 
 function App() {
   return (
@@ -82,7 +87,6 @@ function App() {
           <Route path="/login" element={<UserLogin />} />
           <Route path="/register" element={<UserRegister />} />
           <Route path="/provider/login" element={<ProviderLogin />} />
-          <Route path="/provider/register" element={<ProviderRegister />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Base path redirects */}
@@ -96,14 +100,16 @@ function App() {
             <Route path="booking/:id" element={<BookingDetails />} />
             <Route path="bookings" element={<MyBookings />} />
             <Route path="become-provider" element={<BecomeProvider />} />
+            <Route path="review/:bookingId" element={<WriteReview />} />
           </Route>
 
           {/* Provider Routes */}
           <Route path="/provider" element={<ProtectedRoute role="provider" />}>
             <Route path="dashboard" element={<ProviderDashboard />} />
-            <Route path="services" element={<ManageServices />} />
+            <Route path="services" element={<ProviderManageServices />} />
             <Route path="requests" element={<BookingRequests />} />
             <Route path="earnings" element={<Earnings />} />
+            <Route path="reviews" element={<ProviderReviews />} />
           </Route>
 
           {/* Admin Routes */}
@@ -111,13 +117,36 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<ManageUsers />} />
             <Route path="providers" element={<ManageProviders />} />
+            <Route path="services" element={<AdminManageServices />} />
+            <Route path="bookings" element={<AdminManageBookings />} />
+            <Route path="applications" element={<ManageApplications />} />
             <Route path="categories" element={<ManageCategories />} />
-            <Route path="stats" element={<PlatformStats />} />
+            <Route path="reviews" element={<ManageReviews />} />
           </Route>
 
           {/* Catch-all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              style: {
+                background: "#10B981",
+              },
+            },
+            error: {
+              style: {
+                background: "#EF4444",
+              },
+            },
+          }}
+        />
       </Router>
     </AuthProvider>
   );
