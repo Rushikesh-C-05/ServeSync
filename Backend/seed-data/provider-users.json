@@ -1,0 +1,112 @@
+[
+  {
+    "email": "john.plumber@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "John Smith",
+    "phone": "5551234567",
+    "address": "123 Main St, New York, NY 10001",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "sarah.electric@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Sarah Johnson",
+    "phone": "5551234568",
+    "address": "456 Oak Ave, Los Angeles, CA 90001",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2025-12-05T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "mike.cleaner@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Mike Davis",
+    "phone": "5551234569",
+    "address": "789 Pine St, Chicago, IL 60601",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2025-12-10T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "emily.carpenter@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Emily Martinez",
+    "phone": "5551234570",
+    "address": "321 Elm St, Houston, TX 77001",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2025-12-15T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "david.painter@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "David Wilson",
+    "phone": "5551234571",
+    "address": "654 Maple Dr, Phoenix, AZ 85001",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2025-12-20T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "lisa.landscaper@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Lisa Anderson",
+    "phone": "5551234572",
+    "address": "987 Cedar Ln, Philadelphia, PA 19101",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2026-01-01T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "james.hvac@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "James Taylor",
+    "phone": "5551234573",
+    "address": "147 Birch Rd, San Antonio, TX 78201",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2026-01-05T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "anna.repair@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Anna Thompson",
+    "phone": "5551234574",
+    "address": "258 Spruce Ave, San Diego, CA 92101",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2026-01-08T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "robert.pest@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Robert Garcia",
+    "phone": "5551234575",
+    "address": "369 Willow St, Dallas, TX 75201",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  },
+  {
+    "email": "maria.moving@servesync.com",
+    "password": "$2b$10$8Z9QX5J5Z5Z5Z5Z5Z5Z5Z.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zm",
+    "name": "Maria Rodriguez",
+    "phone": "5551234576",
+    "address": "741 Ash Blvd, San Jose, CA 95101",
+    "role": "provider",
+    "isBlocked": false,
+    "createdAt": "2026-01-12T10:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  }
+]

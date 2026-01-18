@@ -1,0 +1,28 @@
+[
+  {
+    "feePercentage": 10,
+    "categories": [
+      "Plumbing",
+      "Electrical",
+      "Cleaning",
+      "Carpentry",
+      "Painting",
+      "Home Repair",
+      "Landscaping",
+      "Moving",
+      "Pest Control",
+      "HVAC",
+      "Appliance Repair",
+      "Roofing",
+      "Flooring",
+      "Interior Design",
+      "Photography",
+      "Catering",
+      "Pet Care",
+      "Tutoring",
+      "Fitness Training",
+      "Other"
+    ],
+    "updatedAt": "2026-01-18T00:00:00.000Z"
+  }
+]
