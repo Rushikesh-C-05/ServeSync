@@ -30,7 +30,7 @@ const BrowseServices = () => {
       setServices(data);
       setFilteredServices(data);
     } catch (error) {
-      console.error("Error loading services:", error);
+      
     } finally {
       setLoading(false);
     }

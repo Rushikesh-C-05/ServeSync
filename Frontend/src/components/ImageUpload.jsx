@@ -72,7 +72,7 @@ const ImageUpload = ({
       await onUpload(file);
       setPreview(null);
     } catch (error) {
-      console.error("Upload error:", error);
+      
       toast.error("Failed to upload image");
       setPreview(null);
     } finally {
@@ -90,7 +90,7 @@ const ImageUpload = ({
     try {
       await onDelete();
     } catch (error) {
-      console.error("Delete error:", error);
+      
       toast.error("Failed to delete image");
     }
   };

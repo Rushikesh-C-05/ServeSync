@@ -4,8 +4,8 @@ import { FiMail, FiLock, FiShield, FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("admin@servesync.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login } = useAuth();
@@ -94,12 +94,6 @@ const AdminLogin = () => {
             {loading ? "Authenticating..." : "Access Dashboard"}
           </button>
         </form>
-
-        <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm">
-          <p className="text-gray-700 font-medium mb-2">Demo Credentials:</p>
-          <p className="text-gray-600">Email: admin@servesync.com</p>
-          <p className="text-gray-600">Password: password123</p>
-        </div>
 
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
           ⚠️ Restricted access. Authorized personnel only.

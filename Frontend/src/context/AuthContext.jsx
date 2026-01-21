@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
       } catch (e) {
-        console.error("Failed to parse stored user:", e);
+        
         localStorage.removeItem("servesync_user");
         localStorage.removeItem("servesync_token");
       }

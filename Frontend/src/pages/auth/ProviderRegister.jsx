@@ -32,7 +32,6 @@ const ProviderRegister = () => {
           setCategories(response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching categories:", error);
         // Fallback categories if fetch fails
         setCategories([
           "Plumbing",
@@ -179,7 +178,6 @@ const ProviderRegister = () => {
         }, 3000);
       }
     } catch (error) {
-      console.error("Registration error:", error);
       setErrors({
         submit:
           error.response?.data?.message ||

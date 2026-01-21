@@ -1032,7 +1032,7 @@ export const approveProviderApplication = async (req, res) => {
     user.role = "provider";
     await user.save();
 
-    // Create provider profile
+    // Create provider profile with approved status
     const provider = new Provider({
       userId: application.userId,
       businessName: application.businessName,
@@ -1046,6 +1046,7 @@ export const approveProviderApplication = async (req, res) => {
       },
       certifications: application.certifications,
       portfolio: application.portfolio,
+      status: "approved", // Set status to approved directly
       isActive: true,
       rating: 0,
       totalReviews: 0,

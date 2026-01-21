@@ -32,7 +32,7 @@ const MyBookings = () => {
       const data = response.data?.data || response.data || [];
       setBookings(data);
     } catch (error) {
-      console.error("Error loading bookings:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ const MyBookings = () => {
       setCancelConfirm(null);
       loadBookings();
     } catch (error) {
-      console.error("Error cancelling booking:", error);
+      
       toast.error(error.response?.data?.message || "Failed to cancel booking");
     }
   };

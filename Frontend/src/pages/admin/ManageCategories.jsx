@@ -35,7 +35,7 @@ const ManageCategories = () => {
         setCategories(response.data.data);
       }
     } catch (err) {
-      console.error("Error fetching categories:", err);
+      
       toast.error("Failed to load categories");
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ const ManageCategories = () => {
         toast.success("Category added successfully");
       }
     } catch (err) {
-      console.error("Error adding category:", err);
+      
       toast.error(err.response?.data?.message || "Failed to add category");
     }
   };
@@ -78,7 +78,7 @@ const ManageCategories = () => {
         toast.success("Category updated successfully");
       }
     } catch (err) {
-      console.error("Error updating category:", err);
+      
       toast.error(err.response?.data?.message || "Failed to update category");
     }
   };
@@ -92,7 +92,7 @@ const ManageCategories = () => {
         setDeleteConfirm(null);
       }
     } catch (err) {
-      console.error("Error deleting category:", err);
+      
       toast.error(err.response?.data?.message || "Failed to delete category");
     }
   };

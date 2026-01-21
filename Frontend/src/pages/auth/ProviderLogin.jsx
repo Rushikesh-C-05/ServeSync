@@ -4,8 +4,8 @@ import { FiMail, FiLock, FiTool, FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
 const ProviderLogin = () => {
-  const [email, setEmail] = useState("provider@servesync.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login } = useAuth();
@@ -115,12 +115,6 @@ const ProviderLogin = () => {
           >
             Create an account and apply
           </Link>
-        </div>
-
-        <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg text-sm">
-          <p className="text-gray-700 font-medium mb-2">Demo Credentials:</p>
-          <p className="text-gray-600">Email: provider@servesync.com</p>
-          <p className="text-gray-600">Password: password123</p>
         </div>
       </div>
     </div>

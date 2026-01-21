@@ -45,9 +45,7 @@ const BecomeProvider = () => {
     try {
       const response = await adminAPI.getCategories();
       setCategories(response.data.data || response.data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
+    } catch (error) {}
   };
 
   const checkApplicationStatus = async () => {
@@ -59,7 +57,6 @@ const BecomeProvider = () => {
       }
 
       const response = await userAPI.getProviderApplicationStatus(user.id);
-      console.log("Application status response:", response.data);
 
       // Handle different response structures
       const responseData = response.data.data || response.data;
@@ -71,16 +68,12 @@ const BecomeProvider = () => {
           responseData.application.status === "approved" &&
           user.role !== "provider"
         ) {
-          console.log(
-            "Application approved but user is not a provider - ignoring stale application",
-          );
           setApplicationStatus(null);
         } else {
           setApplicationStatus(responseData.application);
         }
       }
     } catch (error) {
-      console.error("Error checking application status:", error);
     } finally {
       setCheckingStatus(false);
     }
@@ -131,7 +124,6 @@ const BecomeProvider = () => {
       );
       await checkApplicationStatus();
     } catch (error) {
-      console.error("Error submitting application:", error);
       toast.error(
         error.response?.data?.message ||
           "Failed to submit application. Please try again.",

@@ -60,7 +60,6 @@ const ProviderDashboard = () => {
       setBookings(formattedBookings);
       setServices(data.services || []);
     } catch (error) {
-      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -71,9 +70,7 @@ const ProviderDashboard = () => {
       const response = await providerAPI.getProfile(user.id);
       const data = response.data?.data || response.data;
       setProviderImage(data.profileImage || null);
-    } catch (error) {
-      console.error("Error loading provider profile:", error);
-    }
+    } catch (error) {}
   };
 
   const handleImageUpload = async (file) => {
@@ -86,7 +83,6 @@ const ProviderDashboard = () => {
         toast.success("Profile image updated successfully");
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
     } finally {
       setImageLoading(false);
@@ -100,7 +96,6 @@ const ProviderDashboard = () => {
       setProviderImage(null);
       toast.success("Profile image removed");
     } catch (error) {
-      console.error("Error deleting image:", error);
       toast.error("Failed to delete image");
     } finally {
       setImageLoading(false);
@@ -108,6 +103,7 @@ const ProviderDashboard = () => {
   };
 
   const navLinks = [
+    { path: "/", label: "Home" },
     { path: "/provider/dashboard", label: "Dashboard" },
     { path: "/provider/services", label: "My Services" },
     { path: "/provider/requests", label: "Booking Requests" },

@@ -25,7 +25,7 @@ const ServiceReviews = ({ serviceId }) => {
       setReviewData(response.data?.data || null);
       setPage(1);
     } catch (error) {
-      console.error("Error loading reviews:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ const ServiceReviews = ({ serviceId }) => {
         setPage(nextPage);
       }
     } catch (error) {
-      console.error("Error loading more reviews:", error);
+      
     } finally {
       setLoadingMore(false);
     }

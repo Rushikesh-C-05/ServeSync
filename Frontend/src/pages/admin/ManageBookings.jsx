@@ -42,7 +42,7 @@ const ManageBookings = () => {
       const data = response.data?.data || response.data || [];
       setBookings(data);
     } catch (error) {
-      console.error("Error loading bookings:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ const ManageBookings = () => {
       toast.success("Booking deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      console.error("Error deleting booking:", error);
+      
       toast.error("Failed to delete booking");
     }
   };
@@ -70,7 +70,7 @@ const ManageBookings = () => {
       );
       toast.success("Booking status updated successfully");
     } catch (error) {
-      console.error("Error updating booking status:", error);
+      
       toast.error("Failed to update booking status");
     }
   };
@@ -99,7 +99,7 @@ const ManageBookings = () => {
       await loadBookings();
       toast.success("Booking updated successfully");
     } catch (error) {
-      console.error("Error updating booking:", error);
+      
       toast.error(error.response?.data?.message || "Failed to update booking");
     }
   };

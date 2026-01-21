@@ -55,7 +55,7 @@ const WriteReview = () => {
         setExistingReview(reviewCheckData.review);
       }
     } catch (error) {
-      console.error("Error loading booking:", error);
+      
       setError("Failed to load booking details");
     } finally {
       setLoading(false);
@@ -93,7 +93,7 @@ const WriteReview = () => {
       toast.success("Thank you for your review!");
       navigate("/user/bookings");
     } catch (error) {
-      console.error("Error submitting review:", error);
+      
       setError(error.response?.data?.message || "Failed to submit review");
     } finally {
       setSubmitting(false);

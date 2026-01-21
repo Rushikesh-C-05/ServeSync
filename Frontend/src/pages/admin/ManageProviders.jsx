@@ -57,7 +57,6 @@ const ManageProviders = () => {
 
       setProviders(formattedProviders);
     } catch (error) {
-      console.error("Error loading providers:", error);
     } finally {
       setLoading(false);
     }
@@ -69,7 +68,6 @@ const ManageProviders = () => {
       toast.success("Provider approved successfully");
       await loadProviders();
     } catch (error) {
-      console.error("Error approving provider:", error);
       toast.error("Failed to approve provider");
     }
   };
@@ -81,7 +79,6 @@ const ManageProviders = () => {
       setRejectConfirm(null);
       await loadProviders();
     } catch (error) {
-      console.error("Error rejecting provider:", error);
       toast.error("Failed to reject provider");
     }
   };
@@ -108,7 +105,6 @@ const ManageProviders = () => {
       await loadProviders();
       toast.success("Provider updated successfully");
     } catch (error) {
-      console.error("Error updating provider:", error);
       toast.error(error.response?.data?.message || "Failed to update provider");
     }
   };
@@ -120,7 +116,6 @@ const ManageProviders = () => {
       toast.success("Provider deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      console.error("Error deleting provider:", error);
       toast.error("Failed to delete provider");
     }
   };
@@ -153,8 +148,13 @@ const ManageProviders = () => {
         <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8">
           <h1 className="text-3xl font-bold mb-2">Manage Providers</h1>
           <p className="text-gray-500">
-            Approve, monitor, and manage service providers
+            Monitor and manage approved service providers
           </p>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+            ℹ️ Provider approvals are now handled in the{" "}
+            <strong>Applications</strong> section. Once approved, providers
+            appear here automatically.
+          </div>
         </div>
 
         {/* Search and Filter */}

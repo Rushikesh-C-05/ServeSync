@@ -45,7 +45,6 @@ const UserDashboard = () => {
       setServices(data.featuredServices || []);
       setBookings(data.recentBookings || []);
     } catch (error) {
-      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +60,6 @@ const UserDashboard = () => {
         toast.success("Profile image updated successfully");
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
     } finally {
       setImageLoading(false);
@@ -75,7 +73,6 @@ const UserDashboard = () => {
       updateUserImage(null);
       toast.success("Profile image removed");
     } catch (error) {
-      console.error("Error deleting image:", error);
       toast.error("Failed to delete image");
     } finally {
       setImageLoading(false);
@@ -83,6 +80,7 @@ const UserDashboard = () => {
   };
 
   const navLinks = [
+    { path: "/", label: "Home" },
     { path: "/user/dashboard", label: "Dashboard" },
     { path: "/user/services", label: "Browse Services" },
     { path: "/user/bookings", label: "My Bookings" },

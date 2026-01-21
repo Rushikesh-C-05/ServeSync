@@ -47,7 +47,7 @@ const BookingDetails = () => {
       const data = response.data?.data || response.data;
       setService(data);
     } catch (error) {
-      console.error("Error loading service:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ const BookingDetails = () => {
             toast.success("Payment successful! Booking confirmed.");
             navigate("/user/bookings");
           } catch (error) {
-            console.error("Payment verification error:", error);
+            
             toast.error("Payment verification failed. Please contact support.");
           }
         },
@@ -156,7 +156,7 @@ const BookingDetails = () => {
       paymentObject.open();
       setProcessing(false);
     } catch (error) {
-      console.error("Payment error:", error);
+      
       const errorMsg =
         error.response?.data?.message || "Payment failed. Please try again.";
       toast.error(errorMsg);

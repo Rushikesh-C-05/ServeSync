@@ -43,7 +43,7 @@ const ManageUsers = () => {
       const data = response.data?.data || response.data || [];
       setUsers(data);
     } catch (error) {
-      console.error("Error loading users:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ const ManageUsers = () => {
       toast.success("User status updated");
       await loadUsers();
     } catch (error) {
-      console.error("Error toggling user block:", error);
+      
       toast.error("Failed to update user status");
     }
   };
@@ -78,7 +78,7 @@ const ManageUsers = () => {
       await loadUsers();
       toast.success("User updated successfully");
     } catch (error) {
-      console.error("Error updating user:", error);
+      
       toast.error(error.response?.data?.message || "Failed to update user");
     }
   };
@@ -90,7 +90,7 @@ const ManageUsers = () => {
       toast.success("User deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      console.error("Error deleting user:", error);
+      
       toast.error("Failed to delete user");
     }
   };
@@ -102,7 +102,7 @@ const ManageUsers = () => {
       toast.success("User can now reapply for provider status");
       setResetConfirm(null);
     } catch (error) {
-      console.error("Error resetting rejection:", error);
+      
       toast.error("Failed to reset rejection status");
     }
   };

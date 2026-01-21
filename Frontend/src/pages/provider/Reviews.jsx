@@ -24,6 +24,7 @@ const Reviews = () => {
   const [submittingResponse, setSubmittingResponse] = useState(false);
 
   const navLinks = [
+    { path: "/", label: "Home" },
     { path: "/provider/dashboard", label: "Dashboard" },
     { path: "/provider/services", label: "My Services" },
     { path: "/provider/requests", label: "Booking Requests" },
@@ -41,7 +42,6 @@ const Reviews = () => {
       const response = await providerAPI.getReviews(user.id);
       setReviewData(response.data?.data || null);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,6 @@ const Reviews = () => {
       setResponseText("");
       fetchReviews();
     } catch (error) {
-      console.error("Error responding to review:", error);
       toast.error(error.response?.data?.message || "Failed to submit response");
     } finally {
       setSubmittingResponse(false);

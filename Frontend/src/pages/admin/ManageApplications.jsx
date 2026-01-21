@@ -31,7 +31,7 @@ const ManageApplications = () => {
         const response = await adminAPI.getProviderApplications(statusParam);
         setApplications(response.data.data || []);
       } catch (error) {
-        console.error("Error fetching applications:", error);
+        
         toast.error("Failed to fetch applications");
       } finally {
         setLoading(false);
@@ -47,7 +47,7 @@ const ManageApplications = () => {
       const response = await adminAPI.getProviderApplications(statusParam);
       setApplications(response.data.data || []);
     } catch (error) {
-      console.error("Error fetching applications:", error);
+      
       toast.error("Failed to fetch applications");
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ const ManageApplications = () => {
       setShowModal(false);
       fetchApplications();
     } catch (error) {
-      console.error("Error approving application:", error);
+      
       toast.error(
         error.response?.data?.message ||
           "Failed to approve application. Please try again.",
@@ -100,7 +100,7 @@ const ManageApplications = () => {
       setShowModal(false);
       fetchApplications();
     } catch (error) {
-      console.error("Error rejecting application:", error);
+      
       toast.error(
         error.response?.data?.message ||
           "Failed to reject application. Please try again.",

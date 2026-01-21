@@ -31,7 +31,7 @@ const ManageReviews = () => {
       const response = await adminAPI.getAllReviews();
       setReviewData(response.data?.data || null);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ const ManageReviews = () => {
       toast.success("Review visibility updated");
       fetchReviews();
     } catch (error) {
-      console.error("Error toggling visibility:", error);
+      
       toast.error(error.response?.data?.message || "Failed to update review");
     }
   };
@@ -55,7 +55,7 @@ const ManageReviews = () => {
       toast.success("Review deleted successfully");
       fetchReviews();
     } catch (error) {
-      console.error("Error deleting review:", error);
+      
       toast.error(error.response?.data?.message || "Failed to delete review");
     }
   };

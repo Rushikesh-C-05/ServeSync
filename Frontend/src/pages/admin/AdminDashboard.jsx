@@ -43,7 +43,7 @@ const AdminDashboard = () => {
 
       setRecentActivity(data.recentActivity || []);
     } catch (error) {
-      console.error("Error loading data:", error);
+      
     } finally {
       setLoading(false);
     }

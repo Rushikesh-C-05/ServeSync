@@ -46,7 +46,7 @@ const ManageServices = () => {
       const data = response.data?.data || response.data || [];
       setServices(data);
     } catch (error) {
-      console.error("Error loading services:", error);
+      
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ const ManageServices = () => {
       toast.success("Service deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      console.error("Error deleting service:", error);
+      
       toast.error("Failed to delete service");
     }
   };
@@ -89,7 +89,7 @@ const ManageServices = () => {
       await loadServices();
       toast.success("Service updated successfully");
     } catch (error) {
-      console.error("Error updating service:", error);
+      
       toast.error(error.response?.data?.message || "Failed to update service");
     }
   };
@@ -111,7 +111,7 @@ const ManageServices = () => {
         toast.success("Service image updated successfully");
       }
     } catch (error) {
-      console.error("Error uploading service image:", error);
+      
       toast.error("Failed to upload image");
     } finally {
       setImageLoading((prev) => ({ ...prev, [serviceId]: false }));
