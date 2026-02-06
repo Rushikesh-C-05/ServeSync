@@ -1,4 +1,5 @@
 import { FiStar, FiClock, FiDollarSign, FiPackage } from "react-icons/fi";
+import { Button } from "./ui/button";
 
 const ServiceCard = ({ service, onClick }) => {
   return (
@@ -6,7 +7,7 @@ const ServiceCard = ({ service, onClick }) => {
       className="bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600">
+      <div className="relative h-48 overflow-hidden bg-user/10">
         {service.image ? (
           <img
             src={service.image}
@@ -15,7 +16,7 @@ const ServiceCard = ({ service, onClick }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <FiPackage className="w-16 h-16 text-white/50" />
+            <FiPackage className="w-16 h-16 text-user/30" />
           </div>
         )}
       </div>
@@ -49,7 +50,9 @@ const ServiceCard = ({ service, onClick }) => {
               {service.price}
             </span>
           </div>
-          <button className="btn-primary text-sm py-2 px-4">Book Now</button>
+          <Button variant="user" size="sm" className="py-2 px-4">
+            Book Now
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { FiCamera, FiUpload, FiX, FiUser } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { Button } from "./ui/button";
 
 const ImageUpload = ({
   currentImage,
@@ -72,7 +73,6 @@ const ImageUpload = ({
       await onUpload(file);
       setPreview(null);
     } catch (error) {
-      
       toast.error("Failed to upload image");
       setPreview(null);
     } finally {
@@ -90,7 +90,6 @@ const ImageUpload = ({
     try {
       await onDelete();
     } catch (error) {
-      
       toast.error("Failed to delete image");
     }
   };
@@ -143,21 +142,25 @@ const ImageUpload = ({
       {/* Action buttons below image */}
       {!disabled && !isLoading && (
         <div className="flex gap-3 mt-2">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+            className="text-xs text-blue-600 hover:text-blue-700 font-medium h-auto py-1 px-2"
           >
             {displayImage ? "Change photo" : "Add photo"}
-          </button>
+          </Button>
           {displayImage && showDeleteButton && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={handleDelete}
-              className="text-xs text-red-600 hover:text-red-700 font-medium"
+              className="text-xs text-red-600 hover:text-red-700 font-medium h-auto py-1 px-2"
             >
               Remove
-            </button>
+            </Button>
           )}
         </div>
       )}

@@ -14,6 +14,9 @@ import {
 import AdminLayout from "../../components/AdminLayout";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { adminAPI } from "../../services/api";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
 
 const ManageProviders = () => {
   const [providers, setProviders] = useState([]);
@@ -41,12 +44,15 @@ const ManageProviders = () => {
       const data = response.data?.data || response.data || [];
 
       const formattedProviders = data.map((provider) => ({
-        _id: provider._id,
-        name: provider.userId?.name || "Unknown",
-        email: provider.userId?.email || "N/A",
-        phone: provider.userId?.phone || "N/A",
+        _id: provider._id || provider.id,
+        name: provider.user?.name || provider.userId?.name || "Unknown",
+        email: provider.user?.email || provider.userId?.email || "N/A",
+        phone: provider.user?.phone || provider.userId?.phone || "N/A",
         profileImage:
-          provider.profileImage || provider.userId?.profileImage || null,
+          provider.profileImage ||
+          provider.user?.profileImage ||
+          provider.userId?.profileImage ||
+          null,
         businessName: provider.businessName,
         status: provider.status,
         rating: provider.rating || 0,
@@ -86,7 +92,7 @@ const ManageProviders = () => {
   const handleEdit = async (provider) => {
     const response = await adminAPI.getAllProviders();
     const fullData = response.data?.data || response.data || [];
-    const fullProvider = fullData.find((p) => p._id === provider._id);
+    const fullProvider = fullData.find((p) => p.id === provider.id);
 
     setEditingProvider(fullProvider);
     setEditForm({
@@ -100,7 +106,7 @@ const ManageProviders = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await adminAPI.updateProvider(editingProvider._id, editForm);
+      await adminAPI.updateProvider(editingProvider.id, editForm);
       setShowEditModal(false);
       await loadProviders();
       toast.success("Provider updated successfully");
@@ -112,7 +118,7 @@ const ManageProviders = () => {
   const handleDelete = async (providerId) => {
     try {
       await adminAPI.deleteProvider(providerId);
-      setProviders(providers.filter((p) => p._id !== providerId));
+      setProviders(providers.filter((p) => p.id !== providerId));
       toast.success("Provider deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
@@ -150,11 +156,6 @@ const ManageProviders = () => {
           <p className="text-gray-500">
             Monitor and manage approved service providers
           </p>
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-            ℹ️ Provider approvals are now handled in the{" "}
-            <strong>Applications</strong> section. Once approved, providers
-            appear here automatically.
-          </div>
         </div>
 
         {/* Search and Filter */}
@@ -162,27 +163,24 @@ const ManageProviders = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search providers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                className="pl-10"
               />
             </div>
             <div className="flex space-x-2">
               {["all", "active", "pending"].map((f) => (
-                <button
+                <Button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-4 py-2 rounded-lg capitalize transition-colors ${
-                    filter === f
-                      ? "bg-blue-600 text-white"
-                      : "bg-white border border-gray-200 hover:bg-gray-50"
-                  }`}
+                  variant={filter === f ? "admin" : "outline"}
+                  className="capitalize"
                 >
                   {f}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -199,7 +197,7 @@ const ManageProviders = () => {
           <div className="space-y-4">
             {filteredProviders.map((provider) => (
               <div
-                key={provider._id}
+                key={provider.id}
                 className="bg-white border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-start justify-between">
@@ -265,38 +263,42 @@ const ManageProviders = () => {
                   <div className="flex space-x-2">
                     {provider.status === "pending" && (
                       <>
-                        <button
-                          onClick={() => handleApprove(provider._id)}
-                          className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                        <Button
+                          onClick={() => handleApprove(provider.id)}
+                          variant="ghost"
+                          size="icon"
                           title="Approve"
                         >
                           <FiCheckCircle className="text-green-600" />
-                        </button>
-                        <button
-                          onClick={() => setRejectConfirm(provider._id)}
-                          className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                        </Button>
+                        <Button
+                          onClick={() => setRejectConfirm(provider.id)}
+                          variant="ghost"
+                          size="icon"
                           title="Reject"
                         >
                           <FiXCircle className="text-red-500" />
-                        </button>
+                        </Button>
                       </>
                     )}
                     {provider.status === "approved" && (
                       <>
-                        <button
+                        <Button
                           onClick={() => handleEdit(provider)}
-                          className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                          variant="ghost"
+                          size="icon"
                           title="Edit"
                         >
                           <FiEdit className="text-blue-600" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(provider._id)}
-                          className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                        </Button>
+                        <Button
+                          onClick={() => setDeleteConfirm(provider.id)}
+                          variant="ghost"
+                          size="icon"
                           title="Delete"
                         >
                           <FiTrash2 className="text-red-500" />
-                        </button>
+                        </Button>
                       </>
                     )}
                   </div>
@@ -331,13 +333,12 @@ const ManageProviders = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Business Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={editForm.businessName}
                     onChange={(e) =>
                       setEditForm({ ...editForm, businessName: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -345,13 +346,12 @@ const ManageProviders = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Description
                   </label>
-                  <textarea
+                  <Textarea
                     value={editForm.description}
                     onChange={(e) =>
                       setEditForm({ ...editForm, description: e.target.value })
                     }
-                    rows="4"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                    rows={4}
                   />
                 </div>
 
@@ -359,13 +359,12 @@ const ManageProviders = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Category
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={editForm.category}
                     onChange={(e) =>
                       setEditForm({ ...editForm, category: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -373,7 +372,7 @@ const ManageProviders = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Experience (years)
                   </label>
-                  <input
+                  <Input
                     type="number"
                     value={editForm.experience}
                     onChange={(e) =>
@@ -382,24 +381,25 @@ const ManageProviders = () => {
                         experience: parseInt(e.target.value),
                       })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button
+                <Button
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSaveEdit}
-                  className="flex-1 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                  variant="admin"
+                  className="flex-1"
                 >
                   Save Changes
-                </button>
+                </Button>
               </div>
             </div>
           </div>

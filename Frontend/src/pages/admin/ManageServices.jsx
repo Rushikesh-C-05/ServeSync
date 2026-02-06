@@ -15,6 +15,24 @@ import AdminLayout from "../../components/AdminLayout";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import ImageUpload from "../../components/ImageUpload";
 import { adminAPI, uploadAPI } from "../../services/api";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const ManageServices = () => {
   const [services, setServices] = useState([]);
@@ -46,7 +64,6 @@ const ManageServices = () => {
       const data = response.data?.data || response.data || [];
       setServices(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -55,11 +72,10 @@ const ManageServices = () => {
   const handleDelete = async (serviceId) => {
     try {
       await adminAPI.deleteService(serviceId);
-      setServices(services.filter((s) => s._id !== serviceId));
+      setServices(services.filter((s) => s.id !== serviceId));
       toast.success("Service deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      
       toast.error("Failed to delete service");
     }
   };
@@ -84,12 +100,11 @@ const ManageServices = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await adminAPI.updateService(editingService._id, editForm);
+      await adminAPI.updateService(editingService.id, editForm);
       setShowEditModal(false);
       await loadServices();
       toast.success("Service updated successfully");
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to update service");
     }
   };
@@ -102,16 +117,15 @@ const ManageServices = () => {
       if (newImageUrl) {
         setServices((prev) =>
           prev.map((s) =>
-            s._id === serviceId ? { ...s, image: newImageUrl } : s,
+            s.id === serviceId ? { ...s, image: newImageUrl } : s,
           ),
         );
-        if (selectedService?._id === serviceId) {
+        if (selectedService?.id === serviceId) {
           setSelectedService((prev) => ({ ...prev, image: newImageUrl }));
         }
         toast.success("Service image updated successfully");
       }
     } catch (error) {
-      
       toast.error("Failed to upload image");
     } finally {
       setImageLoading((prev) => ({ ...prev, [serviceId]: false }));
@@ -122,7 +136,7 @@ const ManageServices = () => {
     const matchesSearch =
       service.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.providerId?.businessName
+      service.provider?.businessName
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -204,26 +218,30 @@ const ManageServices = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search services by title, description, or provider..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                className="pl-10"
               />
             </div>
-            <select
+            <Select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+              onValueChange={(value) => setCategoryFilter(value)}
             >
-              <option value="all">All Categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -240,24 +258,21 @@ const ManageServices = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4">Service</th>
-                    <th className="text-left py-3 px-4">Provider</th>
-                    <th className="text-left py-3 px-4">Category</th>
-                    <th className="text-left py-3 px-4">Price</th>
-                    <th className="text-left py-3 px-4">Location</th>
-                    <th className="text-left py-3 px-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Provider</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredServices.map((service) => (
-                    <tr
-                      key={service._id}
-                      className="border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="py-4 px-4">
+                    <TableRow key={service.id}>
+                      <TableCell>
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                             {service.image ? (
@@ -281,62 +296,65 @@ const ManageServices = () => {
                             </p>
                           </div>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div>
                           <p className="font-medium">
-                            {service.providerId?.businessName || "N/A"}
+                            {service.provider?.businessName || "N/A"}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {service.providerId?.userId?.name || "Unknown"}
+                            {service.provider?.user?.name || "Unknown"}
                           </p>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <span className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-600">
                           {service.category}
                         </span>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <p className="font-semibold text-green-600">
                           ${service.price}
                         </p>
                         <p className="text-xs text-gray-500">
                           {service.pricingType}
                         </p>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center text-sm text-gray-500">
                           <FiMapPin className="mr-1" />
                           {service.location || "Not specified"}
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
                             onClick={() => handleViewDetails(service)}
-                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiEye className="text-blue-600" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleEdit(service)}
-                            className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiEdit className="text-green-600" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(service._id)}
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                          </Button>
+                          <Button
+                            onClick={() => setDeleteConfirm(service.id)}
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiTrash2 className="text-red-500" />
-                          </button>
+                          </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
@@ -373,12 +391,12 @@ const ManageServices = () => {
                   <ImageUpload
                     currentImage={selectedService.image}
                     onUpload={(file) =>
-                      handleAdminImageUpload(selectedService._id, file)
+                      handleAdminImageUpload(selectedService.id, file)
                     }
                     type="service"
                     size="md"
                     shape="rounded"
-                    loading={imageLoading[selectedService._id]}
+                    loading={imageLoading[selectedService.id]}
                     showDeleteButton={false}
                   />
                 </div>
@@ -420,14 +438,14 @@ const ManageServices = () => {
                 <div>
                   <p className="text-sm text-gray-500">Provider</p>
                   <p className="text-gray-700">
-                    {selectedService.providerId?.businessName} (
-                    {selectedService.providerId?.userId?.name})
+                    {selectedService.provider?.businessName} (
+                    {selectedService.provider?.user?.name})
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-500">Service ID</p>
-                  <p className="text-xs text-gray-400">{selectedService._id}</p>
+                  <p className="text-xs text-gray-400">{selectedService.id}</p>
                 </div>
 
                 <div>
@@ -439,30 +457,33 @@ const ManageServices = () => {
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button
+                <Button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Close
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setShowModal(false);
                     handleEdit(selectedService);
                   }}
-                  className="flex-1 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Edit Service
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setShowModal(false);
-                    handleDelete(selectedService._id);
+                    handleDelete(selectedService.id);
                   }}
-                  className="flex-1 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-500 rounded-lg transition-colors"
+                  variant="destructive"
+                  className="flex-1"
                 >
                   Delete Service
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -487,13 +508,12 @@ const ManageServices = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Title
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={editForm.title}
                     onChange={(e) =>
                       setEditForm({ ...editForm, title: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -501,13 +521,12 @@ const ManageServices = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Description
                   </label>
-                  <textarea
+                  <Textarea
                     value={editForm.description}
                     onChange={(e) =>
                       setEditForm({ ...editForm, description: e.target.value })
                     }
-                    rows="4"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                    rows={4}
                   />
                 </div>
 
@@ -516,13 +535,12 @@ const ManageServices = () => {
                     <label className="block text-sm font-medium text-gray-500 mb-2">
                       Category
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={editForm.category}
                       onChange={(e) =>
                         setEditForm({ ...editForm, category: e.target.value })
                       }
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                     />
                   </div>
 
@@ -530,7 +548,7 @@ const ManageServices = () => {
                     <label className="block text-sm font-medium text-gray-500 mb-2">
                       Price ($)
                     </label>
-                    <input
+                    <Input
                       type="number"
                       value={editForm.price}
                       onChange={(e) =>
@@ -539,7 +557,6 @@ const ManageServices = () => {
                           price: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                     />
                   </div>
                 </div>
@@ -549,51 +566,56 @@ const ManageServices = () => {
                     <label className="block text-sm font-medium text-gray-500 mb-2">
                       Pricing Type
                     </label>
-                    <select
+                    <Select
                       value={editForm.pricingType}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         setEditForm({
                           ...editForm,
-                          pricingType: e.target.value,
+                          pricingType: value,
                         })
                       }
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                     >
-                      <option value="fixed">Fixed</option>
-                      <option value="hourly">Hourly</option>
-                      <option value="per_project">Per Project</option>
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select pricing type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fixed">Fixed</SelectItem>
+                        <SelectItem value="hourly">Hourly</SelectItem>
+                        <SelectItem value="per_project">Per Project</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-2">
                       Location
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={editForm.location}
                       onChange={(e) =>
                         setEditForm({ ...editForm, location: e.target.value })
                       }
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button
+                <Button
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSaveEdit}
-                  className="flex-1 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                  variant="admin"
+                  className="flex-1"
                 >
                   Save Changes
-                </button>
+                </Button>
               </div>
             </div>
           </div>

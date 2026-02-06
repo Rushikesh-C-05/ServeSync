@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FiStar, FiArrowLeft, FiCheck, FiAlertCircle } from "react-icons/fi";
 import Navbar from "../../components/Navbar";
+import { Button } from "../../components/ui/button";
+import { Textarea } from "../../components/ui/textarea";
 import { useAuth } from "../../context/AuthContext";
 import { userAPI } from "../../services/api";
 
@@ -55,7 +57,6 @@ const WriteReview = () => {
         setExistingReview(reviewCheckData.review);
       }
     } catch (error) {
-      
       setError("Failed to load booking details");
     } finally {
       setLoading(false);
@@ -80,9 +81,11 @@ const WriteReview = () => {
       setError("");
 
       const reviewData = {
-        serviceId: booking.serviceId._id,
-        providerId: booking.providerId._id,
-        bookingId: booking._id,
+        serviceId:
+          booking.service?.id || booking.serviceId?.id || booking.serviceId,
+        providerId:
+          booking.provider?.id || booking.providerId?.id || booking.providerId,
+        bookingId: booking.id,
         rating,
         comment: comment.trim(),
       };
@@ -93,7 +96,6 @@ const WriteReview = () => {
       toast.success("Thank you for your review!");
       navigate("/user/bookings");
     } catch (error) {
-      
       setError(error.response?.data?.message || "Failed to submit review");
     } finally {
       setSubmitting(false);
@@ -126,12 +128,13 @@ const WriteReview = () => {
         <div className="max-w-3xl mx-auto px-4 py-16 text-center">
           <FiAlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 text-lg">Booking not found</p>
-          <button
+          <Button
             onClick={() => navigate("/user/bookings")}
-            className="btn-primary mt-4"
+            variant="user"
+            className="mt-4"
           >
             Back to Bookings
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -185,12 +188,13 @@ const WriteReview = () => {
               </p>
             </div>
 
-            <button
+            <Button
               onClick={() => navigate("/user/bookings")}
-              className="btn-primary mt-6"
+              variant="user"
+              className="mt-6"
             >
               Back to Bookings
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -223,12 +227,9 @@ const WriteReview = () => {
               Current status:{" "}
               <span className="font-semibold capitalize">{booking.status}</span>
             </p>
-            <button
-              onClick={() => navigate("/user/bookings")}
-              className="btn-primary"
-            >
+            <Button onClick={() => navigate("/user/bookings")} variant="user">
               Back to Bookings
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -262,7 +263,7 @@ const WriteReview = () => {
                 {booking.serviceId?.name || "Service"}
               </h3>
               <p className="text-sm text-gray-600">
-                Provider: {booking.providerId?.businessName || "N/A"}
+                Provider: {booking.provider?.businessName || "N/A"}
               </p>
               <p className="text-sm text-gray-500">
                 Completed on{" "}
@@ -312,12 +313,11 @@ const WriteReview = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Write your review
               </label>
-              <textarea
+              <Textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={5}
                 placeholder="Share your experience with this service. What did you like? What could be improved?"
-                className="input-field"
               />
               <p className="text-sm text-gray-500 mt-1">
                 Minimum 10 characters ({comment.length}/10)
@@ -346,20 +346,22 @@ const WriteReview = () => {
 
             {/* Submit */}
             <div className="flex gap-4">
-              <button
+              <Button
                 type="button"
                 onClick={() => navigate("/user/bookings")}
-                className="btn-secondary flex-1"
+                variant="outline"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={submitting || rating === 0 || comment.length < 10}
-                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="user"
+                className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting..." : "Submit Review"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

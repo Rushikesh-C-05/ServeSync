@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authAPI, adminAPI } from "../../services/api";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Textarea } from "../../components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const ProviderRegister = () => {
   const navigate = useNavigate();
@@ -226,15 +237,18 @@ const ProviderRegister = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Full Name *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="name"
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="John Doe"
                 />
                 {errors.name && (
@@ -244,15 +258,18 @@ const ProviderRegister = () => {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="email"
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="john@example.com"
                 />
                 {errors.email && (
@@ -262,15 +279,18 @@ const ProviderRegister = () => {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Password *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="password"
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="••••••••"
                 />
                 {errors.password && (
@@ -280,15 +300,18 @@ const ProviderRegister = () => {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Confirm Password *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="confirmPassword"
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="••••••••"
                 />
                 {errors.confirmPassword && (
@@ -300,15 +323,18 @@ const ProviderRegister = () => {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Phone Number *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="phone"
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="1234567890"
                 />
                 {errors.phone && (
@@ -318,15 +344,18 @@ const ProviderRegister = () => {
 
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Address *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="address"
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="123 Main St, City"
                 />
                 {errors.address && (
@@ -345,15 +374,18 @@ const ProviderRegister = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Business Name */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="businessName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Business Name *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="businessName"
                   type="text"
                   name="businessName"
                   value={formData.businessName}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="ABC Services"
                 />
                 {errors.businessName && (
@@ -368,19 +400,23 @@ const ProviderRegister = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Service Category *
                 </label>
-                <select
-                  name="category"
+                <Select
                   value={formData.category}
-                  onChange={handleChange}
-                  className="input-field"
+                  onValueChange={(value) =>
+                    handleChange({ target: { name: "category", value } })
+                  }
                 >
-                  <option value="">Select a category</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.category && (
                   <p className="text-red-600 text-sm mt-1">{errors.category}</p>
                 )}
@@ -388,16 +424,19 @@ const ProviderRegister = () => {
 
               {/* Experience */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="experience"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Years of Experience *
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="experience"
                   type="number"
                   name="experience"
                   value={formData.experience}
                   onChange={handleChange}
                   min="0"
-                  className="input-field"
                   placeholder="5"
                 />
                 {errors.experience && (
@@ -409,15 +448,19 @@ const ProviderRegister = () => {
 
               {/* Description */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Business Description *
-                </label>
-                <textarea
+                </Label>
+                <Textarea
+                  id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  rows="4"
-                  className="input-field resize-none"
+                  rows={4}
+                  className="resize-none"
                   placeholder="Describe your business and services..."
                 />
                 {errors.description && (
@@ -429,15 +472,18 @@ const ProviderRegister = () => {
 
               {/* Certifications */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="certifications"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Certifications (Optional)
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="certifications"
                   type="text"
                   name="certifications"
                   value={formData.certifications}
                   onChange={handleChange}
-                  className="input-field"
                   placeholder="Comma-separated list (e.g., Licensed Plumber, HVAC Certified)"
                 />
                 <p className="text-gray-500 text-xs mt-1">
@@ -448,13 +494,14 @@ const ProviderRegister = () => {
           </div>
 
           {/* Submit Button */}
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="provider"
+            className="w-full"
           >
             {loading ? "Submitting..." : "Register as Provider"}
-          </button>
+          </Button>
         </form>
 
         {/* Login Link */}
@@ -462,7 +509,7 @@ const ProviderRegister = () => {
           <span className="text-gray-500">Already have an account? </span>
           <Link
             to="/provider/login"
-            className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+            className="text-provider hover:text-provider/80 font-medium transition-colors"
           >
             Login here
           </Link>

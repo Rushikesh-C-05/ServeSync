@@ -13,6 +13,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import { useAuth } from "../../context/AuthContext";
 import { userAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/button";
 
 const MyBookings = () => {
   const { user } = useAuth();
@@ -32,7 +33,6 @@ const MyBookings = () => {
       const data = response.data?.data || response.data || [];
       setBookings(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -45,14 +45,13 @@ const MyBookings = () => {
       setCancelConfirm(null);
       loadBookings();
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to cancel booking");
     }
   };
 
   const filteredBookings = bookings.filter((booking) => {
     if (filter === "all") return true;
-    return booking.status === filter;
+    return booking.status.toUpperCase() === filter.toUpperCase();
   });
 
   const navLinks = [
@@ -104,7 +103,7 @@ const MyBookings = () => {
             {filteredBookings.length > 0 ? (
               filteredBookings.map((booking) => (
                 <div
-                  key={booking._id}
+                  key={booking.id}
                   className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -112,11 +111,10 @@ const MyBookings = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            {booking.serviceId?.name || "Service"}
+                            {booking.service?.name || "Service"}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            Provider:{" "}
-                            {booking.providerId?.businessName || "N/A"}
+                            Provider: {booking.provider?.businessName || "N/A"}
                           </p>
                         </div>
                         <StatusBadge status={booking.status} />
@@ -158,24 +156,23 @@ const MyBookings = () => {
                     </div>
 
                     <div className="flex lg:flex-col gap-2">
-                      {booking.status === "pending" && (
-                        <button
-                          onClick={() => setCancelConfirm(booking._id)}
-                          className="btn-secondary flex items-center justify-center gap-2"
+                      {booking.status.toUpperCase() === "PENDING" && (
+                        <Button
+                          onClick={() => setCancelConfirm(booking.id)}
+                          variant="outline"
+                          className="flex items-center justify-center gap-2"
                         >
                           <FiX />
                           Cancel
-                        </button>
+                        </Button>
                       )}
-                      {booking.status === "completed" && (
-                        <button
-                          onClick={() =>
-                            navigate(`/user/review/${booking._id}`)
-                          }
-                          className="btn-primary"
+                      {booking.status.toUpperCase() === "COMPLETED" && (
+                        <Button
+                          onClick={() => navigate(`/user/review/${booking.id}`)}
+                          variant="user"
                         >
                           Leave Review
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -188,12 +185,12 @@ const MyBookings = () => {
                     ? "No bookings found"
                     : `No ${filter} bookings`}
                 </p>
-                <button
+                <Button
                   onClick={() => navigate("/user/services")}
-                  className="btn-primary"
+                  variant="user"
                 >
                   Browse Services
-                </button>
+                </Button>
               </div>
             )}
           </div>

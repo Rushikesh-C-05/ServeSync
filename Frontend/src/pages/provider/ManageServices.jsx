@@ -4,7 +4,6 @@ import {
   FiPlus,
   FiEdit2,
   FiTrash2,
-  FiX,
   FiDollarSign,
   FiClock,
   FiMapPin,
@@ -17,13 +16,29 @@ import { useAuth } from "../../context/AuthContext";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import ImageUpload from "../../components/ImageUpload";
 import Navbar from "../../components/Navbar";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const ManageServices = () => {
   const { user } = useAuth();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -93,7 +108,8 @@ const ManageServices = () => {
         availability: service.isAvailable ?? service.availability ?? true,
       });
     } else {
-      setEditingService(null);
+      // For new service, set a placeholder to open modal
+      setEditingService({});
       setFormData({
         title: "",
         description: "",
@@ -104,11 +120,9 @@ const ManageServices = () => {
         availability: true,
       });
     }
-    setShowModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowModal(false);
     setEditingService(null);
     setServiceImage(null);
     setImagePreview(null);
@@ -162,7 +176,7 @@ const ManageServices = () => {
         };
         await providerAPI.updateService(
           user.id,
-          editingService._id,
+          editingService.id,
           serviceData,
         );
         toast.success("Service updated successfully");
@@ -217,7 +231,7 @@ const ManageServices = () => {
       if (newImageUrl) {
         setServices((prev) =>
           prev.map((s) =>
-            s._id === serviceId ? { ...s, image: newImageUrl } : s,
+            s.id === serviceId ? { ...s, image: newImageUrl } : s,
           ),
         );
         toast.success("Service image updated successfully");
@@ -234,7 +248,7 @@ const ManageServices = () => {
     try {
       await uploadAPI.deleteServiceImage(serviceId);
       setServices((prev) =>
-        prev.map((s) => (s._id === serviceId ? { ...s, image: null } : s)),
+        prev.map((s) => (s.id === serviceId ? { ...s, image: null } : s)),
       );
       toast.success("Service image removed");
     } catch (error) {
@@ -276,13 +290,14 @@ const ManageServices = () => {
                 Manage your service offerings
               </p>
             </div>
-            <button
+            <Button
               onClick={() => handleOpenModal()}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              variant="provider"
+              className="flex items-center gap-2"
             >
               <FiPlus className="w-5 h-5" />
               Add Service
-            </button>
+            </Button>
           </div>
 
           {/* Error Message */}
@@ -302,18 +317,15 @@ const ManageServices = () => {
               <p className="text-gray-400 mb-6">
                 Create your first service to start receiving bookings
               </p>
-              <button
-                onClick={() => handleOpenModal()}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <Button onClick={() => handleOpenModal()} variant="provider">
                 Create Service
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
                 <div
-                  key={service._id}
+                  key={service.id}
                   className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   {/* Service Image */}
@@ -345,13 +357,13 @@ const ManageServices = () => {
                       <ImageUpload
                         currentImage={service.image}
                         onUpload={(file) =>
-                          handleServiceImageUpload(service._id, file)
+                          handleServiceImageUpload(service.id, file)
                         }
-                        onDelete={() => handleServiceImageDelete(service._id)}
+                        onDelete={() => handleServiceImageDelete(service.id)}
                         type="service"
                         size="sm"
                         shape="rounded"
-                        loading={imageLoading[service._id]}
+                        loading={imageLoading[service.id]}
                         showDeleteButton={false}
                       />
                     </div>
@@ -382,20 +394,22 @@ const ManageServices = () => {
                     </div>
 
                     <div className="flex gap-2 pt-4 border-t border-gray-100">
-                      <button
+                      <Button
                         onClick={() => handleOpenModal(service)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                        variant="outline"
+                        className="flex-1 flex items-center justify-center gap-2"
                       >
                         <FiEdit2 className="w-4 h-4" />
                         Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(service._id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                      </Button>
+                      <Button
+                        onClick={() => setDeleteConfirm(service.id)}
+                        variant="destructive"
+                        className="flex-1 flex items-center justify-center gap-2"
                       >
                         <FiTrash2 className="w-4 h-4" />
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -404,212 +418,204 @@ const ManageServices = () => {
           )}
 
           {/* Add/Edit Modal */}
-          {showModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {editingService ? "Edit Service" : "Add New Service"}
-                  </h2>
-                  <button
-                    onClick={handleCloseModal}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <FiX className="w-6 h-6" />
-                  </button>
+          <Dialog
+            open={!!editingService}
+            onOpenChange={(open) => !open && handleCloseModal()}
+          >
+            <DialogContent className="max-w-2xl" onClose={handleCloseModal}>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-gray-800">
+                  {editingService?.id ? "Edit Service" : "Add New Service"}
+                </DialogTitle>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Service Image Upload - Only for new services */}
+                {!editingService?.id && (
+                  <div className="flex flex-col items-center mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Service Image (Optional)
+                    </label>
+                    <div
+                      className="w-32 h-32 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Service preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <FiCamera className="text-3xl text-gray-400 mb-2" />
+                          <span className="text-xs text-gray-500">Upload</span>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <div className="flex gap-3 mt-2">
+                      <Button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        variant="link"
+                        size="sm"
+                        className="text-xs h-auto p-0"
+                      >
+                        {imagePreview ? "Change photo" : "Add photo"}
+                      </Button>
+                      {imagePreview && (
+                        <Button
+                          type="button"
+                          onClick={removeImage}
+                          variant="link"
+                          size="sm"
+                          className="text-xs h-auto p-0 text-destructive"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Service Title
+                  </label>
+                  <Input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="e.g., House Cleaning"
+                    required
+                  />
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Service Image Upload - Only for new services */}
-                  {!editingService && (
-                    <div className="flex flex-col items-center mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Service Image (Optional)
-                      </label>
-                      <div
-                        className="w-32 h-32 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-colors"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Service preview"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center">
-                            <FiCamera className="text-3xl text-gray-400 mb-2" />
-                            <span className="text-xs text-gray-500">
-                              Upload
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                      <div className="flex gap-3 mt-2">
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          {imagePreview ? "Change photo" : "Add photo"}
-                        </button>
-                        {imagePreview && (
-                          <button
-                            type="button"
-                            onClick={removeImage}
-                            className="text-xs text-red-600 hover:text-red-700 font-medium"
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Describe your service..."
+                    required
+                  />
+                </div>
 
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Service Title
+                      Category
                     </label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., House Cleaning"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      rows="4"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Describe your service..."
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Category
-                      </label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      >
-                        <option value="">Select category</option>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        handleChange({ target: { name: "category", value } })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
                         {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
+                          <SelectItem key={cat.id} value={cat.name}>
+                            {cat.name}
+                          </SelectItem>
                         ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price ($)
-                      </label>
-                      <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="0.00"
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Duration (minutes)
-                      </label>
-                      <input
-                        type="number"
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="60"
-                        min="1"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Location
-                      </label>
-                      <input
-                        type="text"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Service area"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="availability"
-                      id="availability"
-                      checked={formData.availability}
-                      onChange={handleChange}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <label
-                      htmlFor="availability"
-                      className="ml-2 text-sm text-gray-700"
-                    >
-                      Service is available for booking
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price
                     </label>
+                    <Input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleChange}
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Duration (minutes)
+                    </label>
+                    <Input
+                      type="number"
+                      name="duration"
+                      value={formData.duration}
+                      onChange={handleChange}
+                      placeholder="60"
+                      min="1"
+                      required
+                    />
                   </div>
 
-                  <div className="flex gap-4 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleCloseModal}
-                      className="flex-1 px-6 py-3 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      {editingService ? "Update Service" : "Create Service"}
-                    </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Location
+                    </label>
+                    <Input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="Service area"
+                    />
                   </div>
-                </form>
-              </div>
-            </div>
-          )}
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="availability"
+                    id="availability"
+                    checked={formData.availability}
+                    onChange={handleChange}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="availability"
+                    className="ml-2 text-sm text-gray-700"
+                  >
+                    Service is available for booking
+                  </label>
+                </div>
+
+                <DialogFooter className="flex gap-4 pt-4">
+                  <Button
+                    type="button"
+                    onClick={handleCloseModal}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="provider" className="flex-1">
+                    {editingService?.id ? "Update Service" : "Create Service"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           <ConfirmDialog
             isOpen={!!deleteConfirm}

@@ -43,7 +43,6 @@ const ManageUsers = () => {
       const data = response.data?.data || response.data || [];
       setUsers(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -55,7 +54,6 @@ const ManageUsers = () => {
       toast.success("User status updated");
       await loadUsers();
     } catch (error) {
-      
       toast.error("Failed to update user status");
     }
   };
@@ -73,12 +71,11 @@ const ManageUsers = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await adminAPI.updateUser(editingUser._id, editForm);
+      await adminAPI.updateUser(editingUser.id, editForm);
       setShowEditModal(false);
       await loadUsers();
       toast.success("User updated successfully");
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to update user");
     }
   };
@@ -86,11 +83,10 @@ const ManageUsers = () => {
   const handleDelete = async (userId) => {
     try {
       await adminAPI.deleteUser(userId);
-      setUsers(users.filter((u) => u._id !== userId));
+      setUsers(users.filter((u) => u.id !== userId));
       toast.success("User deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      
       toast.error("Failed to delete user");
     }
   };
@@ -102,7 +98,6 @@ const ManageUsers = () => {
       toast.success("User can now reapply for provider status");
       setResetConfirm(null);
     } catch (error) {
-      
       toast.error("Failed to reset rejection status");
     }
   };
@@ -154,7 +149,7 @@ const ManageUsers = () => {
           <div className="space-y-4">
             {filteredUsers.map((user) => (
               <div
-                key={user._id}
+                key={user.id}
                 className="bg-white border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-start justify-between">
@@ -231,7 +226,7 @@ const ManageUsers = () => {
                   <div className="flex space-x-2">
                     {user.providerRejected && !user.canReapply && (
                       <button
-                        onClick={() => setResetConfirm(user._id)}
+                        onClick={() => setResetConfirm(user.id)}
                         className="p-2 rounded-lg transition-colors hover:bg-green-100"
                         title="Allow Reapplication"
                       >
@@ -239,7 +234,7 @@ const ManageUsers = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => handleToggleBlock(user._id)}
+                      onClick={() => handleToggleBlock(user.id)}
                       className={`p-2 rounded-lg transition-colors ${
                         user.isBlocked
                           ? "hover:bg-green-100"
@@ -261,7 +256,7 @@ const ManageUsers = () => {
                       <FiEdit className="text-blue-600" />
                     </button>
                     <button
-                      onClick={() => setDeleteConfirm(user._id)}
+                      onClick={() => setDeleteConfirm(user.id)}
                       className="p-2 hover:bg-red-100 rounded-lg transition-colors group"
                     >
                       <FiTrash2 className="text-red-500" />

@@ -19,8 +19,12 @@ const ProtectedRoute = ({ role }) => {
 
   // Allow providers to access user routes (they are users too)
   // But don't allow users to access provider/admin routes
+  const userRole = user.role?.toLowerCase();
+  const requiredRole = role?.toLowerCase();
+
   const hasAccess =
-    user.role === role || (role === "user" && user.role === "provider");
+    userRole === requiredRole ||
+    (requiredRole === "user" && userRole === "provider");
 
   if (!hasAccess) {
     const loginPath = role === "user" ? "/login" : `/${role}/login`;

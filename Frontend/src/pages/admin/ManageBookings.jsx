@@ -15,6 +15,24 @@ import AdminLayout from "../../components/AdminLayout";
 import StatusBadge from "../../components/StatusBadge";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { adminAPI } from "../../services/api";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -42,7 +60,6 @@ const ManageBookings = () => {
       const data = response.data?.data || response.data || [];
       setBookings(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -51,11 +68,10 @@ const ManageBookings = () => {
   const handleDelete = async (bookingId) => {
     try {
       await adminAPI.deleteBooking(bookingId);
-      setBookings(bookings.filter((b) => b._id !== bookingId));
+      setBookings(bookings.filter((b) => b.id !== bookingId));
       toast.success("Booking deleted successfully");
       setDeleteConfirm(null);
     } catch (error) {
-      
       toast.error("Failed to delete booking");
     }
   };
@@ -65,12 +81,11 @@ const ManageBookings = () => {
       await adminAPI.updateBookingStatus(bookingId, newStatus);
       setBookings(
         bookings.map((b) =>
-          b._id === bookingId ? { ...b, status: newStatus } : b,
+          b.id === bookingId ? { ...b, status: newStatus } : b,
         ),
       );
       toast.success("Booking status updated successfully");
     } catch (error) {
-      
       toast.error("Failed to update booking status");
     }
   };
@@ -94,12 +109,11 @@ const ManageBookings = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await adminAPI.updateBooking(editingBooking._id, editForm);
+      await adminAPI.updateBooking(editingBooking.id, editForm);
       setShowEditModal(false);
       await loadBookings();
       toast.success("Booking updated successfully");
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to update booking");
     }
   };
@@ -110,7 +124,7 @@ const ManageBookings = () => {
       booking.serviceId?.title
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      booking._id?.toLowerCase().includes(searchTerm.toLowerCase());
+      booking.id?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || booking.status === statusFilter;
@@ -203,26 +217,30 @@ const ManageBookings = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search by user, service, or booking ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                className="pl-10"
               />
             </div>
-            <select
+            <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+              onValueChange={(value) => setStatusFilter(value)}
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="accepted">Accepted</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="rejected">Rejected</option>
-            </select>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="accepted">Accepted</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -239,31 +257,28 @@ const ManageBookings = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4">Booking ID</th>
-                    <th className="text-left py-3 px-4">User</th>
-                    <th className="text-left py-3 px-4">Service</th>
-                    <th className="text-left py-3 px-4">Provider</th>
-                    <th className="text-left py-3 px-4">Date & Time</th>
-                    <th className="text-left py-3 px-4">Amount</th>
-                    <th className="text-left py-3 px-4">Status</th>
-                    <th className="text-left py-3 px-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Booking ID</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Provider</TableHead>
+                    <TableHead>Date & Time</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredBookings.map((booking) => (
-                    <tr
-                      key={booking._id}
-                      className="border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="py-4 px-4">
+                    <TableRow key={booking.id}>
+                      <TableCell>
                         <p className="text-xs text-gray-500 font-mono">
-                          #{booking._id?.slice(-8)}
+                          #{booking.id?.slice(-8)}
                         </p>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center">
                           <FiUser className="mr-2 text-gray-400" />
                           <div>
@@ -275,21 +290,21 @@ const ManageBookings = () => {
                             </p>
                           </div>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <p className="font-medium">
                           {booking.serviceId?.title || "N/A"}
                         </p>
                         <p className="text-xs text-gray-500">
                           {booking.serviceId?.category}
                         </p>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <p className="text-sm">
-                          {booking.providerId?.businessName || "N/A"}
+                          {booking.provider?.businessName || "N/A"}
                         </p>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div>
                           <p className="text-sm">
                             {new Date(
@@ -300,41 +315,44 @@ const ManageBookings = () => {
                             {booking.scheduledTime}
                           </p>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <p className="font-semibold text-green-600">
                           ${booking.totalAmount?.toFixed(2)}
                         </p>
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <StatusBadge status={booking.status} />
-                      </td>
-                      <td className="py-4 px-4">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
                             onClick={() => handleViewDetails(booking)}
-                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiEye className="text-blue-600" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleEdit(booking)}
-                            className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiEdit className="text-green-600" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(booking._id)}
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                          </Button>
+                          <Button
+                            onClick={() => setDeleteConfirm(booking.id)}
+                            variant="ghost"
+                            size="icon"
                           >
                             <FiTrash2 className="text-red-500" />
-                          </button>
+                          </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
@@ -357,7 +375,7 @@ const ManageBookings = () => {
                 <div>
                   <p className="text-sm text-gray-500">Booking ID</p>
                   <p className="text-gray-700 font-mono">
-                    #{selectedBooking._id}
+                    #{selectedBooking.id}
                   </p>
                 </div>
 
@@ -374,7 +392,7 @@ const ManageBookings = () => {
                   <div>
                     <p className="text-sm text-gray-500">Provider</p>
                     <p className="text-gray-700">
-                      {selectedBooking.providerId?.businessName}
+                      {selectedBooking.provider?.businessName}
                     </p>
                   </div>
                 </div>
@@ -444,51 +462,51 @@ const ManageBookings = () => {
                       "cancelled",
                       "rejected",
                     ].map((status) => (
-                      <button
+                      <Button
                         key={status}
                         onClick={() => {
-                          handleUpdateStatus(selectedBooking._id, status);
+                          handleUpdateStatus(selectedBooking.id, status);
                           setSelectedBooking({ ...selectedBooking, status });
                         }}
                         disabled={selectedBooking.status === status}
-                        className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                          selectedBooking.status === status
-                            ? "bg-gray-200 cursor-not-allowed"
-                            : "bg-gray-100 hover:bg-gray-200"
-                        }`}
+                        variant="outline"
+                        size="sm"
                       >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button
+                <Button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Close
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setShowModal(false);
                     handleEdit(selectedBooking);
                   }}
-                  className="flex-1 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Edit Booking
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setShowModal(false);
-                    handleDelete(selectedBooking._id);
+                    handleDelete(selectedBooking.id);
                   }}
-                  className="flex-1 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-500 rounded-lg transition-colors"
+                  variant="destructive"
+                  className="flex-1"
                 >
                   Delete Booking
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -513,7 +531,7 @@ const ManageBookings = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Scheduled Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     value={editForm.scheduledDate}
                     onChange={(e) =>
@@ -522,7 +540,6 @@ const ManageBookings = () => {
                         scheduledDate: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -530,7 +547,7 @@ const ManageBookings = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Scheduled Time
                   </label>
-                  <input
+                  <Input
                     type="time"
                     value={editForm.scheduledTime}
                     onChange={(e) =>
@@ -539,7 +556,6 @@ const ManageBookings = () => {
                         scheduledTime: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -547,31 +563,32 @@ const ManageBookings = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">
                     Notes
                   </label>
-                  <textarea
+                  <Textarea
                     value={editForm.notes}
                     onChange={(e) =>
                       setEditForm({ ...editForm, notes: e.target.value })
                     }
-                    rows="4"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                    rows={4}
                     placeholder="Add notes about this booking..."
                   />
                 </div>
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button
+                <Button
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSaveEdit}
-                  className="flex-1 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                  variant="admin"
+                  className="flex-1"
                 >
                   Save Changes
-                </button>
+                </Button>
               </div>
             </div>
           </div>

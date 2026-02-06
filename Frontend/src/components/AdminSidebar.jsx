@@ -14,6 +14,8 @@ import {
 } from "react-icons/fi";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -71,44 +73,54 @@ const AdminSidebar = () => {
 
   return (
     <aside
-      className={`bg-white border-r border-gray-200 h-screen sticky top-0 flex flex-col transition-all ${
-        isCollapsed ? "w-20" : "w-64"
-      }`}
+      className={cn(
+        "bg-card border-r h-screen sticky top-0 flex flex-col transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64",
+      )}
     >
       {/* Logo & Toggle */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <Link to="/admin/dashboard" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-xl font-bold text-white">S</span>
+              <div className="w-10 h-10 bg-admin rounded-lg flex items-center justify-center">
+                <span className="text-xl font-bold text-admin-foreground">
+                  S
+                </span>
               </div>
-              <span className="text-xl font-bold text-gray-900">ServeSync</span>
+              <span className="text-xl font-bold text-foreground">
+                ServeSync
+              </span>
             </Link>
           )}
           {isCollapsed && (
             <Link to="/admin/dashboard" className="flex justify-center w-full">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-xl font-bold text-white">S</span>
+              <div className="w-10 h-10 bg-admin rounded-lg flex items-center justify-center">
+                <span className="text-xl font-bold text-admin-foreground">
+                  S
+                </span>
               </div>
             </Link>
           )}
           {!isCollapsed && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
             >
               <FiMenu size={20} />
-            </button>
+            </Button>
           )}
         </div>
         {isCollapsed && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-full mt-2 flex justify-center text-gray-600"
+            className="w-full mt-2"
           >
             <FiX size={20} />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -122,11 +134,12 @@ const AdminSidebar = () => {
             return (
               <Link key={item.path} to={item.path}>
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                  className={cn(
+                    "flex items-center space-x-3 p-3 rounded-md transition-colors",
                     isActive
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                      ? "bg-admin-light text-admin"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
                 >
                   <Icon size={20} />
                   {!isCollapsed && (

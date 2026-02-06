@@ -13,6 +13,8 @@ import {
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout";
 import { adminAPI } from "../../services/api";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
 
 const ManageApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -31,7 +33,6 @@ const ManageApplications = () => {
         const response = await adminAPI.getProviderApplications(statusParam);
         setApplications(response.data.data || []);
       } catch (error) {
-        
         toast.error("Failed to fetch applications");
       } finally {
         setLoading(false);
@@ -47,7 +48,6 @@ const ManageApplications = () => {
       const response = await adminAPI.getProviderApplications(statusParam);
       setApplications(response.data.data || []);
     } catch (error) {
-      
       toast.error("Failed to fetch applications");
     } finally {
       setLoading(false);
@@ -66,14 +66,13 @@ const ManageApplications = () => {
     try {
       setActionLoading(true);
       await adminAPI.approveProviderApplication(
-        selectedApplication._id,
+        selectedApplication.id || selectedApplication._id,
         adminNotes,
       );
       toast.success("Application approved successfully!");
       setShowModal(false);
       fetchApplications();
     } catch (error) {
-      
       toast.error(
         error.response?.data?.message ||
           "Failed to approve application. Please try again.",
@@ -93,14 +92,13 @@ const ManageApplications = () => {
     try {
       setActionLoading(true);
       await adminAPI.rejectProviderApplication(
-        selectedApplication._id,
+        selectedApplication.id || selectedApplication._id,
         adminNotes,
       );
       toast.success("Application rejected successfully!");
       setShowModal(false);
       fetchApplications();
     } catch (error) {
-      
       toast.error(
         error.response?.data?.message ||
           "Failed to reject application. Please try again.",
@@ -111,6 +109,7 @@ const ManageApplications = () => {
   };
 
   const getStatusBadge = (status) => {
+    const statusLower = status?.toLowerCase() || "pending";
     const statusConfig = {
       pending: { color: "bg-yellow-100 text-yellow-600", icon: FiClock },
       approved: {
@@ -120,7 +119,7 @@ const ManageApplications = () => {
       rejected: { color: "bg-red-100 text-red-600", icon: FiXCircle },
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[statusLower] || statusConfig.pending;
     const Icon = config.icon;
 
     return (
@@ -128,7 +127,7 @@ const ManageApplications = () => {
         className={`px-3 py-1 rounded-full text-xs font-medium ${config.color} flex items-center gap-1`}
       >
         <Icon className="w-3 h-3" />
-        {status.toUpperCase()}
+        {status?.toUpperCase()}
       </span>
     );
   };
@@ -159,47 +158,31 @@ const ManageApplications = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="bg-white border border-gray-200 rounded-lg p-2 mb-6 inline-flex">
-          <button
+        <div className="bg-white border border-gray-200 rounded-lg p-2 mb-6 inline-flex gap-1">
+          <Button
             onClick={() => setFilter("all")}
-            className={`px-6 py-2 rounded-md transition-colors ${
-              filter === "all"
-                ? "bg-indigo-600 text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            variant={filter === "all" ? "admin" : "ghost"}
           >
             All
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setFilter("pending")}
-            className={`px-6 py-2 rounded-md transition-colors ${
-              filter === "pending"
-                ? "bg-yellow-500 text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            variant={filter === "pending" ? "admin" : "ghost"}
           >
             Pending
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setFilter("approved")}
-            className={`px-6 py-2 rounded-md transition-colors ${
-              filter === "approved"
-                ? "bg-green-500 text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            variant={filter === "approved" ? "admin" : "ghost"}
           >
             Approved
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setFilter("rejected")}
-            className={`px-6 py-2 rounded-md transition-colors ${
-              filter === "rejected"
-                ? "bg-red-500 text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            variant={filter === "rejected" ? "admin" : "ghost"}
           >
             Rejected
-          </button>
+          </Button>
         </div>
 
         {/* Applications List */}
@@ -218,7 +201,7 @@ const ManageApplications = () => {
           <div className="grid gap-4">
             {filteredApplications.map((application) => (
               <div
-                key={application._id}
+                key={application.id}
                 className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-400 transition-colors"
               >
                 <div className="flex justify-between items-start">
@@ -234,7 +217,9 @@ const ManageApplications = () => {
                       <div>
                         <p className="text-gray-400">Applicant</p>
                         <p className="font-medium">
-                          {application.userId?.name}
+                          {application.user?.name ||
+                            application.userId?.name ||
+                            "N/A"}
                         </p>
                       </div>
                       <div>
@@ -243,26 +228,29 @@ const ManageApplications = () => {
                       </div>
                       <div>
                         <p className="text-gray-400">Experience</p>
-                        <p className="font-medium">{application.experience}</p>
+                        <p className="font-medium">
+                          {application.experience} years
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-400">Submitted</p>
                         <p className="font-medium">
                           {new Date(
-                            application.submittedAt,
+                            application.createdAt || application.submittedAt,
                           ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <button
+                  <Button
                     onClick={() => handleViewDetails(application)}
-                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                    variant="admin"
+                    className="ml-4 flex items-center gap-2"
                   >
                     <FiEye />
                     View Details
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -300,22 +288,18 @@ const ManageApplications = () => {
                   <div>
                     <p className="text-gray-400">Name</p>
                     <p className="font-medium">
-                      {selectedApplication.userId?.name}
+                      {selectedApplication.user?.name ||
+                        selectedApplication.userId?.name ||
+                        "N/A"}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-400">Email</p>
                     <p className="font-medium">
-                      {selectedApplication.userId?.email}
+                      {selectedApplication.user?.email ||
+                        selectedApplication.userId?.email ||
+                        "N/A"}
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Phone</p>
-                    <p className="font-medium">{selectedApplication.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Address</p>
-                    <p className="font-medium">{selectedApplication.address}</p>
                   </div>
                 </div>
               </div>
@@ -330,7 +314,9 @@ const ManageApplications = () => {
                   <div>
                     <p className="text-gray-400 text-sm">Description</p>
                     <p className="text-gray-600">
-                      {selectedApplication.businessDescription}
+                      {selectedApplication.description ||
+                        selectedApplication.businessDescription ||
+                        "No description provided"}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -343,10 +329,20 @@ const ManageApplications = () => {
                     <div>
                       <p className="text-gray-400">Experience</p>
                       <p className="font-medium">
-                        {selectedApplication.experience}
+                        {selectedApplication.experience} years
                       </p>
                     </div>
                   </div>
+                  {selectedApplication.documentsUrl && (
+                    <div>
+                      <p className="text-gray-400 text-sm">Business Image</p>
+                      <img
+                        src={selectedApplication.documentsUrl}
+                        alt="Business"
+                        className="mt-2 max-w-md rounded-lg border border-gray-200"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -363,7 +359,9 @@ const ManageApplications = () => {
                       <div>
                         <p className="text-gray-400">Certifications</p>
                         <p className="text-gray-600">
-                          {selectedApplication.certifications}
+                          {Array.isArray(selectedApplication.certifications)
+                            ? selectedApplication.certifications.join(", ")
+                            : selectedApplication.certifications}
                         </p>
                       </div>
                     )}
@@ -385,24 +383,24 @@ const ManageApplications = () => {
               )}
 
               {/* Admin Notes Input (only for pending applications) */}
-              {selectedApplication.status === "pending" && (
+              {selectedApplication.status?.toUpperCase() === "PENDING" && (
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Admin Notes{" "}
-                    {selectedApplication.status === "pending" &&
+                    {selectedApplication.status?.toUpperCase() === "PENDING" &&
                       "(Required for rejection)"}
                   </label>
-                  <textarea
+                  <Textarea
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
-                    className="w-full h-24 resize-none px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
+                    className="h-24 resize-none"
                     placeholder="Add notes about the decision..."
                   />
                 </div>
               )}
 
               {/* Existing Admin Notes (for reviewed applications) */}
-              {selectedApplication.status !== "pending" &&
+              {selectedApplication.status?.toUpperCase() !== "PENDING" &&
                 selectedApplication.adminNotes && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-sm text-gray-500 mb-1">Admin Notes</p>
@@ -421,22 +419,24 @@ const ManageApplications = () => {
                 )}
 
               {/* Action Buttons (only for pending applications) */}
-              {selectedApplication.status === "pending" && (
+              {selectedApplication.status?.toUpperCase() === "PENDING" && (
                 <div className="flex gap-4 pt-4">
-                  <button
+                  <Button
                     onClick={handleReject}
                     disabled={actionLoading}
-                    className="flex-1 bg-white border border-red-300 p-3 hover:bg-red-50 transition-colors text-red-600 font-medium rounded-lg disabled:opacity-50"
+                    variant="outline"
+                    className="flex-1"
                   >
                     {actionLoading ? "Processing..." : "Reject Application"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleApprove}
                     disabled={actionLoading}
-                    className="flex-1 bg-green-600 p-3 rounded-lg font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+                    variant="admin"
+                    className="flex-1"
                   >
                     {actionLoading ? "Processing..." : "Approve Application"}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

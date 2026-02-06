@@ -42,15 +42,15 @@ ServeSync Frontend is a modern, responsive web application built with React and 
 
 ## 🛠 Tech Stack
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| React | ^19.2.0 | UI library |
-| Vite | ^7.2.4 | Build tool & dev server |
-| React Router DOM | ^6.22.0 | Routing |
-| Axios | ^1.6.7 | HTTP client |
-| Tailwind CSS | ^3.4.1 | Styling framework |
-| React Icons | ^5.0.1 | Icon library |
-| React Hot Toast | ^2.6.0 | Notifications |
+| Technology       | Version | Purpose                 |
+| ---------------- | ------- | ----------------------- |
+| React            | ^19.2.0 | UI library              |
+| Vite             | ^7.2.4  | Build tool & dev server |
+| React Router DOM | ^6.22.0 | Routing                 |
+| Axios            | ^1.6.7  | HTTP client             |
+| Tailwind CSS     | ^3.4.1  | Styling framework       |
+| React Icons      | ^5.0.1  | Icon library            |
+| React Hot Toast  | ^2.6.0  | Notifications           |
 
 ---
 
@@ -131,6 +131,7 @@ Frontend/
 ### Prerequisites
 
 1. **Node.js** (v14 or higher)
+
    ```bash
    node --version
    ```
@@ -140,24 +141,29 @@ Frontend/
 ### Installation Steps
 
 1. **Install dependencies:**
+
    ```bash
    cd Frontend
    npm install
    ```
 
 2. **Configure environment variables:**
+
    ```bash
    # Create .env file
    VITE_API_BASE_URL=http://localhost:8080/api
    ```
 
 3. **Start development server:**
+
    ```bash
    npm run dev
    ```
+
    App will be available at `http://localhost:5173`
 
 4. **Build for production:**
+
    ```bash
    npm run build
    ```
@@ -173,8 +179,8 @@ Frontend/
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| Variable            | Description          | Default                     |
+| ------------------- | -------------------- | --------------------------- |
 | `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:8080/api` |
 
 ### Accessing Environment Variables
@@ -192,17 +198,19 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 **File:** `src/App.jsx`
 
 #### Public Routes
+
 ```javascript
 /                          → Landing page
 /login                     → User login (redirects to /login/user)
 /login/user               → User login
-/login/provider           → Provider login  
+/login/provider           → Provider login
 /login/admin              → Admin login
 /register                  → User registration
 /register/provider        → Provider registration
 ```
 
 #### Protected User Routes
+
 ```javascript
 /user/dashboard           → User dashboard
 /user/bookings            → My bookings
@@ -213,6 +221,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 ```
 
 #### Protected Provider Routes
+
 ```javascript
 /provider/dashboard       → Provider dashboard
 /provider/services        → Manage services
@@ -222,6 +231,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 ```
 
 #### Protected Admin Routes
+
 ```javascript
 /admin/dashboard          → Admin dashboard
 /admin/users              → Manage users
@@ -238,12 +248,13 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 **Component:** `components/ProtectedRoute.jsx`
 
 ```javascript
-<ProtectedRoute allowedRoles={['user', 'provider']}>
+<ProtectedRoute allowedRoles={["user", "provider"]}>
   <UserDashboard />
 </ProtectedRoute>
 ```
 
 Features:
+
 - Checks authentication status
 - Validates user role
 - Redirects unauthorized users
@@ -260,6 +271,7 @@ Features:
 Main navigation component with role-based links.
 
 **Props:**
+
 ```javascript
 {
   role: 'user' | 'provider' | 'admin',
@@ -268,20 +280,22 @@ Main navigation component with role-based links.
 ```
 
 **Features:**
+
 - Mobile responsive menu
 - User profile dropdown
 - Profile image display
 - Logout functionality
 
 **Usage:**
+
 ```javascript
 const userLinks = [
   { to: "/user/dashboard", label: "Dashboard", icon: FiGrid },
   { to: "/user/browse-services", label: "Browse", icon: FiSearch },
-  { to: "/user/bookings", label: "My Bookings", icon: FiCalendar }
+  { to: "/user/bookings", label: "My Bookings", icon: FiCalendar },
 ];
 
-<Navbar role="user" links={userLinks} />
+<Navbar role="user" links={userLinks} />;
 ```
 
 #### 2. **ImageUpload** (`components/ImageUpload.jsx`)
@@ -289,6 +303,7 @@ const userLinks = [
 Reusable image upload component with preview and delete.
 
 **Props:**
+
 ```javascript
 {
   currentImage: string,           // Current image URL
@@ -305,6 +320,7 @@ Reusable image upload component with preview and delete.
 ```
 
 **Features:**
+
 - Click-to-upload interface
 - Image preview
 - File validation (type & size)
@@ -313,6 +329,7 @@ Reusable image upload component with preview and delete.
 - Responsive design
 
 **Usage:**
+
 ```javascript
 <ImageUpload
   currentImage={user.profileImage}
@@ -329,6 +346,7 @@ Reusable image upload component with preview and delete.
 Displays service information in a card layout.
 
 **Props:**
+
 ```javascript
 {
   service: {
@@ -352,6 +370,7 @@ Displays service information in a card layout.
 ```
 
 **Features:**
+
 - Service image display
 - Price and duration info
 - Provider details
@@ -364,6 +383,7 @@ Displays service information in a card layout.
 Displays user reviews with ratings.
 
 **Props:**
+
 ```javascript
 {
   review: {
@@ -377,6 +397,7 @@ Displays user reviews with ratings.
 ```
 
 **Features:**
+
 - Star rating display
 - User profile image
 - Review text
@@ -388,6 +409,7 @@ Displays user reviews with ratings.
 Confirmation modal for destructive actions.
 
 **Props:**
+
 ```javascript
 {
   isOpen: boolean,
@@ -402,6 +424,7 @@ Confirmation modal for destructive actions.
 ```
 
 **Usage:**
+
 ```javascript
 <ConfirmDialog
   isOpen={showDeleteDialog}
@@ -419,6 +442,7 @@ Confirmation modal for destructive actions.
 Colored badge for status indicators.
 
 **Props:**
+
 ```javascript
 {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected',
@@ -427,6 +451,7 @@ Colored badge for status indicators.
 ```
 
 **Status Colors:**
+
 - `pending` → Yellow
 - `confirmed` → Blue
 - `completed` → Green
@@ -438,6 +463,7 @@ Colored badge for status indicators.
 Dashboard statistics card.
 
 **Props:**
+
 ```javascript
 {
   title: string,
@@ -450,6 +476,7 @@ Dashboard statistics card.
 ```
 
 **Usage:**
+
 ```javascript
 <StatCard
   title="Total Bookings"
@@ -466,6 +493,7 @@ Dashboard statistics card.
 Route wrapper for authentication and authorization.
 
 **Props:**
+
 ```javascript
 {
   children: ReactNode,
@@ -474,11 +502,12 @@ Route wrapper for authentication and authorization.
 ```
 
 **Usage:**
+
 ```javascript
 <Route
   path="/user/dashboard"
   element={
-    <ProtectedRoute allowedRoles={['user', 'provider']}>
+    <ProtectedRoute allowedRoles={["user", "provider"]}>
       <UserDashboard />
     </ProtectedRoute>
   }
@@ -490,6 +519,7 @@ Route wrapper for authentication and authorization.
 Layout wrapper for admin pages with sidebar.
 
 **Features:**
+
 - Responsive sidebar
 - Mobile menu toggle
 - Active route highlighting
@@ -500,6 +530,7 @@ Layout wrapper for admin pages with sidebar.
 Navigation sidebar for admin panel.
 
 **Features:**
+
 - Icon-based navigation
 - Active link highlighting
 - Hover effects
@@ -514,6 +545,7 @@ Navigation sidebar for admin panel.
 #### User Registration (`pages/auth/UserRegister.jsx`)
 
 **Features:**
+
 - Profile image upload during registration
 - Form validation
 - Password confirmation
@@ -521,6 +553,7 @@ Navigation sidebar for admin panel.
 - Phone and address fields
 
 **Form Fields:**
+
 - Name (required)
 - Email (required)
 - Phone (required)
@@ -532,6 +565,7 @@ Navigation sidebar for admin panel.
 #### User Login (`pages/auth/UserLogin.jsx`)
 
 **Features:**
+
 - Email/password authentication
 - Remember me option
 - Redirect to dashboard
@@ -541,6 +575,7 @@ Navigation sidebar for admin panel.
 #### Provider Registration (`pages/auth/ProviderRegister.jsx`)
 
 **Features:**
+
 - Extended registration form
 - Business information
 - Category selection
@@ -562,6 +597,7 @@ Secure login for platform administrators.
 #### User Dashboard (`pages/user/UserDashboard.jsx`)
 
 **Features:**
+
 - Overview statistics
   - Total bookings
   - Active bookings
@@ -572,6 +608,7 @@ Secure login for platform administrators.
 - Profile image display
 
 **Statistics Cards:**
+
 - Total Bookings
 - Active Bookings
 - Completed Services
@@ -580,6 +617,7 @@ Secure login for platform administrators.
 #### Browse Services (`pages/user/BrowseServices.jsx`)
 
 **Features:**
+
 - Service grid layout
 - Search functionality
 - Category filter
@@ -590,6 +628,7 @@ Secure login for platform administrators.
 - Pagination
 
 **Filters:**
+
 ```javascript
 {
   search: string,
@@ -603,6 +642,7 @@ Secure login for platform administrators.
 #### My Bookings (`pages/user/MyBookings.jsx`)
 
 **Features:**
+
 - Bookings list with filters
 - Status-based tabs
 - Booking details view
@@ -611,6 +651,7 @@ Secure login for platform administrators.
 - Service provider info
 
 **Booking Status:**
+
 - All
 - Pending
 - Confirmed
@@ -620,6 +661,7 @@ Secure login for platform administrators.
 #### Booking Details (`pages/user/BookingDetails.jsx`)
 
 **Features:**
+
 - Complete booking information
 - Service details
 - Provider information
@@ -629,6 +671,7 @@ Secure login for platform administrators.
 - Review submission
 
 **Display Sections:**
+
 - Booking summary
 - Service details
 - Provider details
@@ -638,6 +681,7 @@ Secure login for platform administrators.
 #### Become Provider (`pages/user/BecomeProvider.jsx`)
 
 **Features:**
+
 - Provider application form
 - Business image upload
 - Category selection
@@ -646,6 +690,7 @@ Secure login for platform administrators.
 - Reapplication handling
 
 **Form Fields:**
+
 - Business Name (required)
 - Business Description (required)
 - Category (required)
@@ -657,6 +702,7 @@ Secure login for platform administrators.
 - Business Image (optional, max 5MB)
 
 **Application States:**
+
 - No application
 - Pending review
 - Approved (redirect to provider dashboard)
@@ -665,6 +711,7 @@ Secure login for platform administrators.
 #### Write Review (`pages/user/WriteReview.jsx`)
 
 **Features:**
+
 - Star rating input
 - Review text
 - Booking information display
@@ -673,6 +720,7 @@ Secure login for platform administrators.
 - Validation
 
 **Form:**
+
 ```javascript
 {
   rating: 1-5,
@@ -687,6 +735,7 @@ Secure login for platform administrators.
 #### Provider Dashboard (`pages/provider/ProviderDashboard.jsx`)
 
 **Features:**
+
 - Key metrics
   - Total services
   - Active bookings
@@ -698,6 +747,7 @@ Secure login for platform administrators.
 - Performance charts
 
 **Statistics:**
+
 - Total Services
 - Active Bookings
 - Completed Services
@@ -707,6 +757,7 @@ Secure login for platform administrators.
 #### Manage Services (`pages/provider/ManageServices.jsx`)
 
 **Features:**
+
 - Services grid
 - Add new service
 - Edit service
@@ -716,6 +767,7 @@ Secure login for platform administrators.
 - Service statistics
 
 **Service Form:**
+
 ```javascript
 {
   title: string (required),
@@ -730,6 +782,7 @@ Secure login for platform administrators.
 ```
 
 **Image Upload:**
+
 - During service creation (optional)
 - After creation via ImageUpload component
 - Change/Remove functionality
@@ -737,6 +790,7 @@ Secure login for platform administrators.
 #### Booking Requests (`pages/provider/BookingRequests.jsx`)
 
 **Features:**
+
 - Pending bookings list
 - Accept booking
 - Reject booking (with reason)
@@ -745,6 +799,7 @@ Secure login for platform administrators.
 - Status management
 
 **Actions:**
+
 - Accept Request
 - Reject Request
 - Mark as Complete
@@ -753,6 +808,7 @@ Secure login for platform administrators.
 #### Provider Earnings (`pages/provider/Earnings.jsx`)
 
 **Features:**
+
 - Total earnings overview
 - Monthly breakdown
 - Payment history
@@ -761,6 +817,7 @@ Secure login for platform administrators.
 - Export data
 
 **Metrics:**
+
 - Total Earnings
 - Platform Fees
 - Net Earnings
@@ -769,6 +826,7 @@ Secure login for platform administrators.
 #### Provider Reviews (`pages/provider/Reviews.jsx`)
 
 **Features:**
+
 - All reviews list
 - Average rating display
 - Respond to reviews
@@ -782,6 +840,7 @@ Secure login for platform administrators.
 #### Admin Dashboard (`pages/admin/AdminDashboard.jsx`)
 
 **Features:**
+
 - Platform overview
 - Key statistics
   - Total users
@@ -794,6 +853,7 @@ Secure login for platform administrators.
 - Charts and analytics
 
 **Statistics:**
+
 - Total Users
 - Total Providers
 - Active Services
@@ -805,6 +865,7 @@ Secure login for platform administrators.
 #### Manage Users (`pages/admin/ManageUsers.jsx`)
 
 **Features:**
+
 - Users list with search
 - User details view
 - Block/Unblock users
@@ -813,6 +874,7 @@ Secure login for platform administrators.
 - Pagination
 
 **User Actions:**
+
 - View details
 - Block account
 - Unblock account
@@ -820,6 +882,7 @@ Secure login for platform administrators.
 #### Manage Providers (`pages/admin/ManageProviders.jsx`)
 
 **Features:**
+
 - Providers list
 - Filter by status
 - Provider details
@@ -829,6 +892,7 @@ Secure login for platform administrators.
 - Profile image display
 
 **Provider Status:**
+
 - All
 - Approved
 - Pending
@@ -837,6 +901,7 @@ Secure login for platform administrators.
 #### Manage Applications (`pages/admin/ManageApplications.jsx`)
 
 **Features:**
+
 - Pending applications list
 - Application details
 - Approve application
@@ -845,6 +910,7 @@ Secure login for platform administrators.
 - Business image display
 
 **Actions:**
+
 - Approve with notes
 - Reject with reason
 - Allow/Prevent reapplication
@@ -852,6 +918,7 @@ Secure login for platform administrators.
 #### Manage Services (`pages/admin/ManageServices.jsx`)
 
 **Features:**
+
 - All services list
 - Filter by category
 - Search services
@@ -863,6 +930,7 @@ Secure login for platform administrators.
 #### Manage Bookings (`pages/admin/ManageBookings.jsx`)
 
 **Features:**
+
 - All bookings list
 - Filter by status
 - Booking details
@@ -873,6 +941,7 @@ Secure login for platform administrators.
 #### Manage Reviews (`pages/admin/ManageReviews.jsx`)
 
 **Features:**
+
 - All reviews list
 - Filter by rating
 - Review moderation
@@ -882,6 +951,7 @@ Secure login for platform administrators.
 #### Manage Categories (`pages/admin/ManageCategories.jsx`)
 
 **Features:**
+
 - Categories list
 - Add category
 - Edit category
@@ -940,15 +1010,15 @@ updateUserImage(imageUrl);
 #### Usage Example
 
 ```javascript
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 function MyComponent() {
   const { user, isAuthenticated, login, logout } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  
+
   return (
     <div>
       <h1>Welcome, {user.name}!</h1>
@@ -961,6 +1031,7 @@ function MyComponent() {
 #### Storage
 
 User data and token stored in `localStorage`:
+
 - `servesync_user` → User object
 - `servesync_token` → JWT token
 - `servesync_userId` → User ID
@@ -978,13 +1049,14 @@ Centralized API client using Axios with interceptors.
 #### Configuration
 
 ```javascript
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 ```
 
@@ -994,7 +1066,7 @@ Automatically adds auth token to requests:
 
 ```javascript
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('servesync_token');
+  const token = localStorage.getItem("servesync_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -1013,10 +1085,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear storage and redirect
       localStorage.clear();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -1025,7 +1097,7 @@ apiClient.interceptors.response.use(
 #### Auth API
 
 ```javascript
-import { authAPI } from '../services/api';
+import { authAPI } from "../services/api";
 
 // Register (supports FormData for image upload)
 await authAPI.register(formData);
@@ -1039,7 +1111,7 @@ await authAPI.adminLogin(email, password);
 #### User API
 
 ```javascript
-import { userAPI } from '../services/api';
+import { userAPI } from "../services/api";
 
 // Dashboard
 await userAPI.getDashboardStats(userId);
@@ -1066,7 +1138,7 @@ await userAPI.getProviderApplicationStatus(userId);
 #### Provider API
 
 ```javascript
-import { providerAPI } from '../services/api';
+import { providerAPI } from "../services/api";
 
 // Dashboard
 await providerAPI.getDashboardStats(userId);
@@ -1095,7 +1167,7 @@ await providerAPI.respondToReview(userId, reviewId, response);
 #### Admin API
 
 ```javascript
-import { adminAPI } from '../services/api';
+import { adminAPI } from "../services/api";
 
 // Dashboard
 await adminAPI.getStats();
@@ -1126,7 +1198,7 @@ await adminAPI.deleteCategory(categoryId);
 #### Service API
 
 ```javascript
-import { serviceAPI } from '../services/api';
+import { serviceAPI } from "../services/api";
 
 // Public endpoints
 await serviceAPI.getAll(params);
@@ -1138,7 +1210,7 @@ await serviceAPI.getById(serviceId);
 #### Upload API
 
 ```javascript
-import { uploadAPI } from '../services/api';
+import { uploadAPI } from "../services/api";
 
 // Upload images
 await uploadAPI.uploadUserImage(userId, file);
@@ -1188,16 +1260,16 @@ const handleRegister = async (formData) => {
   try {
     // Create FormData for file upload
     const submitData = new FormData();
-    submitData.append('name', formData.name);
-    submitData.append('email', formData.email);
+    submitData.append("name", formData.name);
+    submitData.append("email", formData.email);
     // ... other fields
     if (profileImage) {
-      submitData.append('profileImage', profileImage);
+      submitData.append("profileImage", profileImage);
     }
-    
+
     await register(submitData);
-    await login(formData.email, formData.password, 'user');
-    navigate('/user/dashboard');
+    await login(formData.email, formData.password, "user");
+    navigate("/user/dashboard");
   } catch (error) {
     toast.error(error.message);
   }
@@ -1210,7 +1282,7 @@ const handleRegister = async (formData) => {
 <Route
   path="/user/dashboard"
   element={
-    <ProtectedRoute allowedRoles={['user', 'provider']}>
+    <ProtectedRoute allowedRoles={["user", "provider"]}>
       <UserDashboard />
     </ProtectedRoute>
   }
@@ -1227,7 +1299,7 @@ const handleRegister = async (formData) => {
 ```javascript
 const handleLogout = () => {
   logout();
-  navigate('/');
+  navigate("/");
 };
 ```
 
@@ -1256,25 +1328,28 @@ theme: {
 ### Common CSS Classes
 
 #### Buttons
+
 ```javascript
 // Primary Button
-className="btn-primary"
+className = "btn-primary";
 // Equivalent: bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700
 
 // Secondary Button
-className="btn-secondary"
+className = "btn-secondary";
 // Equivalent: bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200
 ```
 
 #### Input Fields
+
 ```javascript
-className="input-field"
+className = "input-field";
 // Equivalent: w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500
 ```
 
 #### Cards
+
 ```javascript
-className="bg-white border border-gray-200 rounded-lg shadow-sm p-6"
+className = "bg-white border border-gray-200 rounded-lg shadow-sm p-6";
 ```
 
 ### Responsive Design
@@ -1294,16 +1369,16 @@ Mobile-first approach with Tailwind breakpoints:
 Using React Hot Toast for user feedback:
 
 ```javascript
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 // Success
-toast.success('Operation successful!');
+toast.success("Operation successful!");
 
 // Error
-toast.error('Something went wrong');
+toast.error("Something went wrong");
 
 // Loading
-const toastId = toast.loading('Processing...');
+const toastId = toast.loading("Processing...");
 toast.dismiss(toastId);
 ```
 
@@ -1312,12 +1387,17 @@ toast.dismiss(toastId);
 React Icons library:
 
 ```javascript
-import { 
-  FiUser, FiMail, FiPhone, FiMapPin,
-  FiCalendar, FiDollarSign, FiClock
-} from 'react-icons/fi';
+import {
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiMapPin,
+  FiCalendar,
+  FiDollarSign,
+  FiClock,
+} from "react-icons/fi";
 
-<FiUser className="text-xl text-blue-600" />
+<FiUser className="text-xl text-blue-600" />;
 ```
 
 ---
@@ -1347,7 +1427,7 @@ const handleImageChange = (e) => {
   const file = e.target.files[0];
   if (file) {
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+      toast.error("Image size must be less than 5MB");
       return;
     }
     setImageFile(file);
@@ -1357,10 +1437,10 @@ const handleImageChange = (e) => {
 
 const handleSubmit = async () => {
   const formData = new FormData();
-  formData.append('name', name);
-  formData.append('email', email);
+  formData.append("name", name);
+  formData.append("email", email);
   if (imageFile) {
-    formData.append('profileImage', imageFile);
+    formData.append("profileImage", imageFile);
   }
   await authAPI.register(formData);
 };
@@ -1374,12 +1454,12 @@ const handleSubmit = async () => {
   onUpload={async (file) => {
     const response = await uploadAPI.uploadUserImage(user.id, file);
     updateUserImage(response.data.data);
-    toast.success('Profile image updated');
+    toast.success("Profile image updated");
   }}
   onDelete={async () => {
     await uploadAPI.deleteUserImage(user.id);
     updateUserImage(null);
-    toast.success('Profile image removed');
+    toast.success("Profile image removed");
   }}
   type="user"
   size="lg"
@@ -1391,19 +1471,25 @@ const handleSubmit = async () => {
 
 ```javascript
 // Allowed types
-const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+const allowedTypes = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
 
 // Max size: 5MB
 const maxSize = 5 * 1024 * 1024;
 
 // Validation
 if (!allowedTypes.includes(file.type)) {
-  toast.error('Please select a valid image file');
+  toast.error("Please select a valid image file");
   return;
 }
 
 if (file.size > maxSize) {
-  toast.error('Image size must be less than 5MB');
+  toast.error("Image size must be less than 5MB");
   return;
 }
 ```
@@ -1415,27 +1501,28 @@ if (file.size > maxSize) {
 ### Code Organization
 
 1. **Component Structure**
+
    ```javascript
    // Imports
-   import React, { useState, useEffect } from 'react';
-   
+   import React, { useState, useEffect } from "react";
+
    // Component
    const MyComponent = () => {
      // State
      const [data, setData] = useState([]);
-     
+
      // Effects
      useEffect(() => {
        fetchData();
      }, []);
-     
+
      // Handlers
      const handleClick = () => {};
-     
+
      // Render
      return <div>...</div>;
    };
-   
+
    export default MyComponent;
    ```
 
@@ -1461,9 +1548,9 @@ const fetchData = async () => {
     const response = await api.getData();
     setData(response.data);
   } catch (error) {
-    console.error('Error:', error);
-    setError(error.response?.data?.message || 'Failed to load data');
-    toast.error(error.response?.data?.message || 'Something went wrong');
+    console.error("Error:", error);
+    setError(error.response?.data?.message || "Failed to load data");
+    toast.error(error.response?.data?.message || "Something went wrong");
   } finally {
     setLoading(false);
   }
@@ -1473,11 +1560,13 @@ const fetchData = async () => {
 ### Performance Optimization
 
 1. **Lazy Loading**
+
    ```javascript
-   const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+   const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
    ```
 
 2. **Memoization**
+
    ```javascript
    const expensiveValue = useMemo(() => computeExpensiveValue(data), [data]);
    ```
@@ -1486,19 +1575,21 @@ const fetchData = async () => {
    ```javascript
    const debouncedSearch = useCallback(
      debounce((query) => searchServices(query), 500),
-     []
+     [],
    );
    ```
 
 ### Accessibility
 
 1. **Semantic HTML**
+
    ```javascript
    <button> instead of <div onClick>
    <nav>, <main>, <section>, <article>
    ```
 
 2. **ARIA Labels**
+
    ```javascript
    <button aria-label="Close dialog">
      <FiX />
@@ -1541,6 +1632,7 @@ Generates optimized files in `dist/` folder.
 ### Environment Variables
 
 Production `.env`:
+
 ```
 VITE_API_BASE_URL=https://api.yourdomain.com/api
 ```
@@ -1548,19 +1640,23 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api
 ### Deployment Platforms
 
 #### Vercel
+
 ```bash
 npm install -g vercel
 vercel
 ```
 
 #### Netlify
+
 ```bash
 npm install -g netlify-cli
 netlify deploy --prod
 ```
 
 #### Static Hosting
+
 Upload `dist/` folder to:
+
 - GitHub Pages
 - AWS S3
 - Firebase Hosting
@@ -1611,6 +1707,7 @@ All pages are mobile-first and responsive:
 ### Manual Testing Checklist
 
 #### Authentication
+
 - [ ] User registration with image
 - [ ] User login
 - [ ] Provider login
@@ -1619,6 +1716,7 @@ All pages are mobile-first and responsive:
 - [ ] Protected routes
 
 #### User Flow
+
 - [ ] Browse services
 - [ ] Search and filter
 - [ ] Book service
@@ -1628,6 +1726,7 @@ All pages are mobile-first and responsive:
 - [ ] Apply for provider
 
 #### Provider Flow
+
 - [ ] Create service with image
 - [ ] Edit service
 - [ ] Upload/change service image
@@ -1637,6 +1736,7 @@ All pages are mobile-first and responsive:
 - [ ] Respond to reviews
 
 #### Admin Flow
+
 - [ ] View statistics
 - [ ] Manage users
 - [ ] Approve providers
@@ -1650,16 +1750,19 @@ All pages are mobile-first and responsive:
 ### Common Issues
 
 **Issue:** API connection failed
+
 - Check backend is running
 - Verify API URL in `.env`
 - Check CORS settings
 
 **Issue:** Images not uploading
+
 - Verify Cloudinary config on backend
 - Check file size (< 5MB)
 - Check file format (JPG, PNG, GIF, WebP)
 
 **Issue:** Routes not working
+
 - Check route paths match exactly
 - Verify authentication
 - Check user role permissions

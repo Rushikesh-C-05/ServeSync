@@ -13,6 +13,14 @@ import {
 import AdminLayout from "../../components/AdminLayout";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { adminAPI } from "../../services/api";
+import { Button } from "../../components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const ManageReviews = () => {
   const [reviewData, setReviewData] = useState(null);
@@ -31,7 +39,6 @@ const ManageReviews = () => {
       const response = await adminAPI.getAllReviews();
       setReviewData(response.data?.data || null);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -43,7 +50,6 @@ const ManageReviews = () => {
       toast.success("Review visibility updated");
       fetchReviews();
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to update review");
     }
   };
@@ -55,7 +61,6 @@ const ManageReviews = () => {
       toast.success("Review deleted successfully");
       fetchReviews();
     } catch (error) {
-      
       toast.error(error.response?.data?.message || "Failed to delete review");
     }
   };
@@ -63,8 +68,8 @@ const ManageReviews = () => {
   const filteredReviews =
     reviewData?.reviews?.filter((review) => {
       // Visibility filter
-      if (filter === "visible" && !review.isVisible) return false;
-      if (filter === "hidden" && review.isVisible) return false;
+      if (filter === "visible" && !review.visible) return false;
+      if (filter === "hidden" && review.visible) return false;
 
       // Rating filter
       if (ratingFilter !== "all" && review.rating !== parseInt(ratingFilter))
@@ -205,33 +210,41 @@ const ManageReviews = () => {
               <label className="text-sm font-medium text-gray-700">
                 Status:
               </label>
-              <select
+              <Select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="input-field py-2"
+                onValueChange={(value) => setFilter(value)}
               >
-                <option value="all">All Reviews</option>
-                <option value="visible">Visible</option>
-                <option value="hidden">Hidden</option>
-              </select>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="All Reviews" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Reviews</SelectItem>
+                  <SelectItem value="visible">Visible</SelectItem>
+                  <SelectItem value="hidden">Hidden</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">
                 Rating:
               </label>
-              <select
+              <Select
                 value={ratingFilter}
-                onChange={(e) => setRatingFilter(e.target.value)}
-                className="input-field py-2"
+                onValueChange={(value) => setRatingFilter(value)}
               >
-                <option value="all">All Ratings</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
-              </select>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="All Ratings" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ratings</SelectItem>
+                  <SelectItem value="5">5 Stars</SelectItem>
+                  <SelectItem value="4">4 Stars</SelectItem>
+                  <SelectItem value="3">3 Stars</SelectItem>
+                  <SelectItem value="2">2 Stars</SelectItem>
+                  <SelectItem value="1">1 Star</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -241,9 +254,9 @@ const ManageReviews = () => {
           {filteredReviews.length > 0 ? (
             filteredReviews.map((review) => (
               <div
-                key={review._id}
+                key={review.id}
                 className={`bg-white border rounded-lg p-6 ${
-                  review.isVisible
+                  review.visible
                     ? "border-gray-200"
                     : "border-red-200 bg-red-50"
                 }`}
@@ -256,15 +269,15 @@ const ManageReviews = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {review.userId?.name || "Anonymous"}
+                        {review.user?.name || "Anonymous"}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {review.userId?.email}
+                        {review.user?.email}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {!review.isVisible && (
+                    {!review.visible && (
                       <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">
                         Hidden
                       </span>
@@ -288,11 +301,11 @@ const ManageReviews = () => {
                 <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                   <span>
                     <strong>Service:</strong>{" "}
-                    {review.serviceId?.name || "Unknown"}
+                    {review.service?.name || "Unknown"}
                   </span>
                   <span>
                     <strong>Provider:</strong>{" "}
-                    {review.providerId?.businessName || "Unknown"}
+                    {review.provider?.businessName || "Unknown"}
                   </span>
                   <span className="flex items-center gap-1">
                     <FiCalendar className="w-4 h-4" />
@@ -324,15 +337,13 @@ const ManageReviews = () => {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => handleToggleVisibility(review._id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      review.isVisible
-                        ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
-                    }`}
+                  <Button
+                    onClick={() => handleToggleVisibility(review.id)}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
                   >
-                    {review.isVisible ? (
+                    {review.visible ? (
                       <>
                         <FiEyeOff className="w-4 h-4" />
                         Hide Review
@@ -343,18 +354,20 @@ const ManageReviews = () => {
                         Show Review
                       </>
                     )}
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(review._id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                  </Button>
+                  <Button
+                    onClick={() => setDeleteConfirm(review.id)}
+                    variant="destructive"
+                    size="sm"
+                    className="flex items-center gap-2"
                   >
                     <FiTrash2 className="w-4 h-4" />
                     Delete
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Delete Confirmation */}
-                {deleteConfirm === review._id && (
+                {deleteConfirm === review.id && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-start gap-3">
                       <FiAlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -366,18 +379,20 @@ const ManageReviews = () => {
                           This action cannot be undone.
                         </p>
                         <div className="flex gap-2 mt-3">
-                          <button
-                            onClick={() => handleDeleteReview(review._id)}
-                            className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
+                          <Button
+                            onClick={() => handleDeleteReview(review.id)}
+                            variant="destructive"
+                            size="sm"
                           >
                             Yes, Delete
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => setDeleteConfirm(null)}
-                            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"
+                            variant="outline"
+                            size="sm"
                           >
                             Cancel
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>

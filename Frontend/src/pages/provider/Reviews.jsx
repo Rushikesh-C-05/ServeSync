@@ -13,6 +13,8 @@ import Navbar from "../../components/Navbar";
 import StatCard from "../../components/StatCard";
 import { providerAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../components/ui/button";
+import { Textarea } from "../../components/ui/textarea";
 
 const Reviews = () => {
   const { user } = useAuth();
@@ -211,7 +213,7 @@ const Reviews = () => {
             {filteredReviews.length > 0 ? (
               filteredReviews.map((review) => (
                 <div
-                  key={review._id}
+                  key={review.id}
                   className="bg-white border border-gray-200 rounded-lg p-6"
                 >
                   {/* Review Header */}
@@ -269,43 +271,45 @@ const Reviews = () => {
                         {review.providerResponse.text}
                       </p>
                     </div>
-                  ) : respondingTo === review._id ? (
+                  ) : respondingTo === review.id ? (
                     /* Response Form */
                     <div className="mt-4 border-t border-gray-200 pt-4">
-                      <textarea
+                      <Textarea
                         value={responseText}
                         onChange={(e) => setResponseText(e.target.value)}
                         placeholder="Write your response to this review..."
                         rows={3}
-                        className="input-field mb-3"
+                        className="mb-3"
                       />
                       <div className="flex gap-2">
-                        <button
+                        <Button
                           onClick={() => {
                             setRespondingTo(null);
                             setResponseText("");
                           }}
-                          className="btn-secondary flex items-center gap-2"
+                          variant="outline"
+                          className="flex items-center gap-2"
                         >
                           <FiX className="w-4 h-4" />
                           Cancel
-                        </button>
-                        <button
-                          onClick={() => handleRespondToReview(review._id)}
+                        </Button>
+                        <Button
+                          onClick={() => handleRespondToReview(review.id)}
                           disabled={
                             submittingResponse || responseText.length < 10
                           }
-                          className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                          variant="provider"
+                          className="flex items-center gap-2"
                         >
                           <FiSend className="w-4 h-4" />
                           {submittingResponse ? "Sending..." : "Send Response"}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
                     /* Respond Button */
                     <button
-                      onClick={() => setRespondingTo(review._id)}
+                      onClick={() => setRespondingTo(review.id)}
                       className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2"
                     >
                       <FiMessageSquare className="w-4 h-4" />

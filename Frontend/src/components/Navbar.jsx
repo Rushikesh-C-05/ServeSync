@@ -3,6 +3,8 @@ import { FiLogOut, FiMenu, FiX, FiUser } from "react-icons/fi";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 const Navbar = ({ role, links }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,18 +17,29 @@ const Navbar = ({ role, links }) => {
     navigate("/");
   };
 
+  const roleColors = {
+    admin: "bg-admin",
+    provider: "bg-provider",
+    user: "bg-user",
+  };
+
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-card border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link
             to={`/${role}/dashboard`}
             className="flex items-center space-x-2"
           >
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div
+              className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center",
+                roleColors[role] || roleColors.user,
+              )}
+            >
               <span className="text-xl font-bold text-white">S</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">ServeSync</span>
+            <span className="text-xl font-bold text-foreground">ServeSync</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -35,18 +48,23 @@ const Navbar = ({ role, links }) => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors ${
+                className={cn(
+                  "text-sm font-medium transition-colors",
                   location.pathname === link.path
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-blue-600"
-                }`}
+                    ? role === "admin"
+                      ? "text-admin"
+                      : role === "provider"
+                        ? "text-provider"
+                        : "text-user"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
+            <div className="flex items-center space-x-3 pl-4 border-l">
               {/* Profile Image */}
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary flex items-center justify-center">
                 {user?.profileImage ? (
                   <img
                     src={user.profileImage}
@@ -54,34 +72,37 @@ const Navbar = ({ role, links }) => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <FiUser className="text-gray-400" size={20} />
+                  <FiUser className="text-muted-foreground" size={20} />
                 )}
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   {user?.name}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  {user?.role}
+                </p>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={handleLogout}
-                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
-                <FiLogOut
-                  className="text-red-500 hover:text-red-600"
-                  size={20}
-                />
-              </button>
+                <FiLogOut size={20} />
+              </Button>
             </div>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+            className="md:hidden"
           >
             {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
+          </Button>
         </div>
       </div>
 

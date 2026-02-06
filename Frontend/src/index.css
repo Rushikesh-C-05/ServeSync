@@ -3,8 +3,86 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Base colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.5rem;
+
+    /* Admin colors - Indigo theme */
+    --admin: 239 84% 67%;
+    --admin-foreground: 0 0% 100%;
+    --admin-light: 239 84% 95%;
+
+    /* Provider colors - Emerald theme */
+    --provider: 160 84% 39%;
+    --provider-foreground: 0 0% 100%;
+    --provider-light: 160 84% 95%;
+
+    /* User colors - Blue theme */
+    --user: 217 91% 60%;
+    --user-foreground: 0 0% 100%;
+    --user-light: 217 91% 95%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family:
       "Inter",
       system-ui,
@@ -16,80 +94,28 @@
 }
 
 @layer components {
-  /* Card Styles */
-  .card {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  /* Role-specific backgrounds */
+  .admin-theme {
+    background: linear-gradient(
+      to bottom right,
+      hsl(239 84% 97%),
+      hsl(0 0% 100%)
+    );
   }
 
-  .card-hover {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+  .provider-theme {
+    background: linear-gradient(
+      to bottom right,
+      hsl(160 84% 97%),
+      hsl(0 0% 100%)
+    );
   }
 
-  /* Button Styles */
-  .btn-primary {
-    @apply bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium 
-           hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  .user-theme {
+    background: linear-gradient(
+      to bottom right,
+      hsl(217 91% 97%),
+      hsl(0 0% 100%)
+    );
   }
-
-  .btn-secondary {
-    @apply bg-white text-gray-700 px-6 py-2.5 rounded-lg font-medium 
-           border border-gray-300 hover:bg-gray-50 
-           focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 
-           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-outline {
-    @apply bg-transparent text-blue-600 px-6 py-2.5 rounded-lg font-medium 
-           border border-blue-600 hover:bg-blue-50 
-           focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-danger {
-    @apply bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium 
-           hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
-           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  /* Input Styles */
-  .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 
-           placeholder-gray-500 bg-white
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-           transition-colors;
-  }
-
-  /* Status Badge Styles */
-  .status-badge {
-    @apply px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border;
-  }
-
-  /* Navigation Link Styles */
-  .nav-link {
-    @apply text-gray-600 hover:text-blue-600 font-medium transition-colors;
-  }
-
-  .nav-link-active {
-    @apply text-blue-600 font-medium;
-  }
-}
-
-/* Scrollbar Styling for Light Theme */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }

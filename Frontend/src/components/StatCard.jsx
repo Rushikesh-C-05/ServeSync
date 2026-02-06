@@ -1,34 +1,43 @@
+import { Card } from "./ui/card";
+import { cn } from "../lib/utils";
+
 const iconColors = {
   blue: "bg-blue-100 text-blue-600",
-  green: "bg-green-100 text-green-600",
+  green: "bg-emerald-100 text-emerald-600",
   purple: "bg-purple-100 text-purple-600",
   amber: "bg-amber-100 text-amber-600",
   red: "bg-red-100 text-red-600",
   indigo: "bg-indigo-100 text-indigo-600",
+  admin: "bg-admin-light text-admin",
+  provider: "bg-provider-light text-provider",
+  user: "bg-user-light text-user",
 };
 
 const StatCard = ({ icon: Icon, label, value, color = "blue", trend }) => {
   const colorClass = iconColors[color] || iconColors.blue;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+    <Card className="p-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-gray-500 text-sm mb-1">{label}</p>
-          <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+          <p className="text-muted-foreground text-sm mb-1">{label}</p>
+          <h3 className="text-2xl font-bold text-foreground">{value}</h3>
           {trend && (
             <p
-              className={`text-sm mt-2 ${trend > 0 ? "text-green-600" : "text-red-600"}`}
+              className={cn(
+                "text-sm mt-2",
+                trend > 0 ? "text-emerald-600" : "text-red-600",
+              )}
             >
               {trend > 0 ? "↑" : "↓"} {Math.abs(trend)}% from last month
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${colorClass}`}>
+        <div className={cn("p-3 rounded-lg", colorClass)}>
           <Icon className="text-xl" />
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

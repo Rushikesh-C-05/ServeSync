@@ -7,10 +7,10 @@ const ReviewCard = ({ review, showServiceName = false }) => {
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
-            {review.userId?.profileImage ? (
+            {review.user?.profileImage ? (
               <img
-                src={review.userId.profileImage}
-                alt={review.userId?.name || "User"}
+                src={review.user.profileImage}
+                alt={review.user?.name || "User"}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -19,10 +19,10 @@ const ReviewCard = ({ review, showServiceName = false }) => {
           </div>
           <div>
             <h4 className="font-semibold text-gray-900">
-              {review.userId?.name || "Anonymous"}
+              {review.user?.name || "Anonymous"}
             </h4>
-            {showServiceName && review.serviceId?.name && (
-              <p className="text-sm text-gray-500">{review.serviceId.name}</p>
+            {showServiceName && review.service?.name && (
+              <p className="text-sm text-gray-500">{review.service.name}</p>
             )}
           </div>
         </div>

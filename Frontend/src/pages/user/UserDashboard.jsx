@@ -16,6 +16,14 @@ import ImageUpload from "../../components/ImageUpload";
 import { useAuth } from "../../context/AuthContext";
 import { serviceAPI, userAPI, uploadAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 
 const UserDashboard = () => {
   const { user, updateUserImage } = useAuth();
@@ -88,37 +96,41 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen user-theme flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-user border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen user-theme">
       <Navbar role="user" links={navLinks} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Banner */}
-        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8 border-l-4 border-l-blue-600">
-          <div className="flex items-center space-x-6">
-            <ImageUpload
-              currentImage={user?.profileImage}
-              onUpload={handleImageUpload}
-              onDelete={handleImageDelete}
-              type="user"
-              size="lg"
-              shape="circle"
-              loading={imageLoading}
-            />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.name}! 👋
-              </h1>
-              <p className="text-gray-500">Ready to book your next service?</p>
+        <Card className="mb-8 border-l-4 border-l-user">
+          <CardContent className="p-8">
+            <div className="flex items-center space-x-6">
+              <ImageUpload
+                currentImage={user?.profileImage}
+                onUpload={handleImageUpload}
+                onDelete={handleImageDelete}
+                type="user"
+                size="lg"
+                shape="circle"
+                loading={imageLoading}
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground mb-2">
+                  Welcome back, {user?.name}! 👋
+                </h1>
+                <p className="text-muted-foreground">
+                  Ready to book your next service?
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -126,7 +138,7 @@ const UserDashboard = () => {
             icon={FiShoppingBag}
             label="Active Bookings"
             value={stats?.activeBookings || 0}
-            color="blue"
+            color="user"
           />
           <StatCard
             icon={FiCheckCircle}
@@ -144,31 +156,34 @@ const UserDashboard = () => {
 
         {/* Become a Provider CTA */}
         {user?.role === "user" && (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8 border-l-4 border-l-indigo-600">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                <div className="bg-indigo-600 p-4 rounded-xl">
-                  <FiBriefcase className="text-3xl text-white" />
+          <Card className="mb-8 border-l-4 border-l-provider">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center justify-between">
+                <div className="flex items-center space-x-4 mb-4 md:mb-0">
+                  <div className="bg-provider p-4 rounded-xl">
+                    <FiBriefcase className="text-3xl text-provider-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-1">
+                      Become a Service Provider
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Start earning by offering your services to thousands of
+                      customers
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
-                    Become a Service Provider
-                  </h3>
-                  <p className="text-gray-500">
-                    Start earning by offering your services to thousands of
-                    customers
-                  </p>
-                </div>
+                <Button
+                  variant="provider"
+                  onClick={() => navigate("/user/become-provider")}
+                  className="whitespace-nowrap"
+                >
+                  Get Started
+                  <FiArrowRight className="ml-2" />
+                </Button>
               </div>
-              <button
-                onClick={() => navigate("/user/become-provider")}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2 whitespace-nowrap"
-              >
-                <span>Get Started</span>
-                <FiArrowRight />
-              </button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Recent Bookings */}
@@ -187,7 +202,7 @@ const UserDashboard = () => {
             {bookings.length > 0 ? (
               bookings.map((booking) => (
                 <div
-                  key={booking._id}
+                  key={booking.id}
                   className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -234,9 +249,9 @@ const UserDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
               <ServiceCard
-                key={service._id}
+                key={service.id}
                 service={service}
-                onClick={() => navigate(`/user/booking/${service._id}`)}
+                onClick={() => navigate(`/user/booking/${service.id}`)}
               />
             ))}
           </div>

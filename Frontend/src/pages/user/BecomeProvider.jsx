@@ -14,6 +14,16 @@ import Navbar from "../../components/Navbar";
 import { useAuth } from "../../context/AuthContext";
 import { userAPI, adminAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 const BecomeProvider = () => {
   const { user } = useAuth();
@@ -61,11 +71,24 @@ const BecomeProvider = () => {
       // Handle different response structures
       const responseData = response.data.data || response.data;
 
-      if (responseData.hasApplication && responseData.application) {
+      // Check if there's an application (it could be the application object itself or wrapped)
+      if (responseData && responseData.id) {
+        // responseData is the application object directly
         // Double-check: if application is approved but user role is not provider,
         // ignore the application status (it means provider was deleted)
+        if (responseData.status === "APPROVED" && user.role !== "provider") {
+          setApplicationStatus(null);
+        } else {
+          setApplicationStatus(responseData);
+        }
+      } else if (
+        responseData &&
+        responseData.hasApplication &&
+        responseData.application
+      ) {
+        // Old structure: wrapped in hasApplication
         if (
-          responseData.application.status === "approved" &&
+          responseData.application.status === "APPROVED" &&
           user.role !== "provider"
         ) {
           setApplicationStatus(null);
@@ -205,7 +228,7 @@ const BecomeProvider = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white border border-gray-200 rounded-lg p-8">
             <div className="text-center mb-8">
-              {applicationStatus.status === "pending" && (
+              {applicationStatus.status?.toUpperCase() === "PENDING" && (
                 <>
                   <FiClock className="text-5xl text-amber-500 mx-auto mb-4" />
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -221,7 +244,7 @@ const BecomeProvider = () => {
                   </p>
                 </>
               )}
-              {applicationStatus.status === "approved" && (
+              {applicationStatus.status?.toUpperCase() === "APPROVED" && (
                 <>
                   <FiCheckCircle className="text-5xl text-green-600 mx-auto mb-4" />
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -230,15 +253,16 @@ const BecomeProvider = () => {
                   <p className="text-gray-500">
                     Congratulations! You are now a provider.
                   </p>
-                  <button
+                  <Button
                     onClick={() => navigate("/provider/dashboard")}
-                    className="btn-primary mt-4"
+                    variant="provider"
+                    className="mt-4"
                   >
                     Go to Provider Dashboard
-                  </button>
+                  </Button>
                 </>
               )}
-              {applicationStatus.status === "rejected" && (
+              {applicationStatus.status?.toUpperCase() === "REJECTED" && (
                 <>
                   <FiAlertCircle className="text-5xl text-red-600 mx-auto mb-4" />
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -281,14 +305,14 @@ const BecomeProvider = () => {
                   <p className="text-sm text-gray-500">Status</p>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      applicationStatus.status === "pending"
+                      applicationStatus.status?.toUpperCase() === "PENDING"
                         ? "bg-amber-100 text-amber-800"
-                        : applicationStatus.status === "approved"
+                        : applicationStatus.status?.toUpperCase() === "APPROVED"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {applicationStatus.status.toUpperCase()}
+                    {applicationStatus.status?.toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -408,12 +432,11 @@ const BecomeProvider = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Business Name *
               </label>
-              <input
+              <Input
                 type="text"
                 name="businessName"
                 value={formData.businessName}
                 onChange={handleInputChange}
-                className="input-field w-full"
                 placeholder="e.g., John's Plumbing Services"
                 required
               />
@@ -423,11 +446,11 @@ const BecomeProvider = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Business Description *
               </label>
-              <textarea
+              <Textarea
                 name="businessDescription"
                 value={formData.businessDescription}
                 onChange={handleInputChange}
-                className="input-field w-full h-32 resize-none"
+                className="h-32 resize-none"
                 placeholder="Describe your services, expertise, and what makes you unique..."
                 required
               />
@@ -438,32 +461,34 @@ const BecomeProvider = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Primary Category *
                 </label>
-                <select
-                  name="category"
+                <Select
                   value={formData.category}
-                  onChange={handleInputChange}
-                  className="input-field w-full"
-                  required
+                  onValueChange={(value) =>
+                    handleInputChange({ target: { name: "category", value } })
+                  }
                 >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Years of Experience *
                 </label>
-                <input
+                <Input
                   type="text"
                   name="experience"
                   value={formData.experience}
                   onChange={handleInputChange}
-                  className="input-field w-full"
                   placeholder="e.g., 5 years"
                   required
                 />
@@ -475,12 +500,11 @@ const BecomeProvider = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number *
                 </label>
-                <input
+                <Input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="input-field w-full"
                   placeholder="e.g., +1234567890"
                   required
                 />
@@ -490,12 +514,11 @@ const BecomeProvider = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Business Address *
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className="input-field w-full"
                   placeholder="e.g., 123 Main St, City"
                   required
                 />
@@ -506,12 +529,11 @@ const BecomeProvider = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Certifications (Optional)
               </label>
-              <input
+              <Input
                 type="text"
                 name="certifications"
                 value={formData.certifications}
                 onChange={handleInputChange}
-                className="input-field w-full"
                 placeholder="e.g., Licensed Electrician, HVAC Certified"
               />
             </div>
@@ -520,12 +542,11 @@ const BecomeProvider = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Portfolio/Website (Optional)
               </label>
-              <input
+              <Input
                 type="url"
                 name="portfolio"
                 value={formData.portfolio}
                 onChange={handleInputChange}
-                className="input-field w-full"
                 placeholder="e.g., https://yourwebsite.com"
               />
             </div>
@@ -557,13 +578,14 @@ const BecomeProvider = () => {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 type="submit"
-                className="flex-1 bg-indigo-600 text-white p-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                variant="user"
+                className="flex-1"
                 disabled={loading}
               >
                 {loading ? "Submitting Application..." : "Submit Application"}
-              </button>
+              </Button>
             </div>
           </form>
 

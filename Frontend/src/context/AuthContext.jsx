@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
       } catch (e) {
-        
         localStorage.removeItem("servesync_user");
         localStorage.removeItem("servesync_token");
       }
@@ -45,21 +44,35 @@ export const AuthProvider = ({ children }) => {
         response = await authAPI.adminLogin(email, password);
       }
 
-      const data = response.data?.data || response.data;
+      // Backend returns: { success: true, message: "...", data: { token: "...", user: {...} } }
+      console.log("Login response:", response.data);
+      const apiResponseData = response.data?.data;
+      console.log("API Response Data:", apiResponseData);
 
-      // Handle backend response structure
-      const userFromResponse = data.user || data;
-      const token = data.token;
+      // Extract token and user from the AuthResponse
+      const token = apiResponseData?.token;
+      const userFromResponse = apiResponseData?.user;
+
+      console.log("Token:", token);
+      console.log("User from response:", userFromResponse);
+
+      if (!token || !userFromResponse) {
+        throw new Error(
+          "Invalid response from server - missing token or user data",
+        );
+      }
 
       const userData = {
-        id: userFromResponse._id || userFromResponse.id,
+        id: userFromResponse.id,
         name: userFromResponse.name,
         email: userFromResponse.email,
-        role: userFromResponse.role || role,
+        role: userFromResponse.role?.toLowerCase() || role.toLowerCase(),
         phone: userFromResponse.phone,
         address: userFromResponse.address,
         profileImage: userFromResponse.profileImage || null,
       };
+
+      console.log("User data being stored:", userData);
 
       setUser(userData);
       localStorage.setItem("servesync_user", JSON.stringify(userData));

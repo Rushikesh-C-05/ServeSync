@@ -14,6 +14,14 @@ import { useAuth } from "../../context/AuthContext";
 import StatusBadge from "../../components/StatusBadge";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import Navbar from "../../components/Navbar";
+import { Button } from "../../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
 
 const BookingRequests = () => {
   const { user } = useAuth();
@@ -21,7 +29,6 @@ const BookingRequests = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -101,12 +108,11 @@ const BookingRequests = () => {
 
   const filteredBookings = bookings.filter((booking) => {
     if (filter === "all") return true;
-    return booking.status === filter;
+    return booking.status.toUpperCase() === filter.toUpperCase();
   });
 
   const handleViewDetails = (booking) => {
     setSelectedBooking(booking);
-    setShowModal(true);
   };
 
   const navLinks = [
@@ -150,17 +156,15 @@ const BookingRequests = () => {
           <div className="bg-white border border-gray-200 rounded-lg p-2 mb-6 inline-flex">
             {["all", "pending", "accepted", "completed", "rejected"].map(
               (status) => (
-                <button
+                <Button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-md capitalize transition-colors ${
-                    filter === status
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  variant={filter === status ? "provider" : "ghost"}
+                  size="sm"
+                  className="capitalize"
                 >
                   {status}
-                </button>
+                </Button>
               ),
             )}
           </div>
@@ -182,14 +186,14 @@ const BookingRequests = () => {
             <div className="grid gap-4">
               {filteredBookings.map((booking) => (
                 <div
-                  key={booking._id}
+                  key={booking.id}
                   className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="text-lg font-bold text-gray-800">
-                          {booking.serviceId?.name || "Service"}
+                          {booking.service?.name || "Service"}
                         </h3>
                         <StatusBadge status={booking.status} />
                       </div>
@@ -197,7 +201,7 @@ const BookingRequests = () => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div className="flex items-center text-gray-500">
                           <FiUser className="w-4 h-4 mr-2" />
-                          <span>{booking.userId?.name || "Customer"}</span>
+                          <span>{booking.user?.name || "Customer"}</span>
                         </div>
                         <div className="flex items-center text-gray-500">
                           <FiCalendar className="w-4 h-4 mr-2" />
@@ -216,40 +220,46 @@ const BookingRequests = () => {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                      <button
+                      <Button
                         onClick={() => handleViewDetails(booking)}
-                        className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                        variant="outline"
+                        size="icon"
                         title="View Details"
                       >
                         <FiEye className="w-5 h-5" />
-                      </button>
+                      </Button>
 
-                      {booking.status === "pending" && (
+                      {booking.status.toUpperCase() === "PENDING" && (
                         <>
-                          <button
-                            onClick={() => handleAccept(booking._id)}
-                            className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
+                          <Button
+                            onClick={() => handleAccept(booking.id)}
+                            variant="outline"
+                            size="icon"
+                            className="border-green-200 text-green-600 hover:bg-green-100 hover:text-green-700"
                             title="Accept"
                           >
                             <FiCheckCircle className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleReject(booking._id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                          </Button>
+                          <Button
+                            onClick={() => handleReject(booking.id)}
+                            variant="outline"
+                            size="icon"
+                            className="border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700"
                             title="Reject"
                           >
                             <FiXCircle className="w-5 h-5" />
-                          </button>
+                          </Button>
                         </>
                       )}
 
-                      {booking.status === "accepted" && (
-                        <button
-                          onClick={() => handleComplete(booking._id)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      {booking.status.toUpperCase() === "ACCEPTED" && (
+                        <Button
+                          onClick={() => handleComplete(booking.id)}
+                          variant="provider"
+                          size="sm"
                         >
                           Mark Complete
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -259,30 +269,30 @@ const BookingRequests = () => {
           )}
 
           {/* Booking Details Modal */}
-          {showModal && selectedBooking && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      Booking Details
-                    </h2>
-                    <p className="text-gray-500 text-sm">
-                      #{selectedBooking._id?.slice(-8)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    ×
-                  </button>
+          <Dialog
+            open={!!selectedBooking}
+            onOpenChange={(open) => !open && setSelectedBooking(null)}
+          >
+            <DialogContent
+              className="max-w-2xl"
+              onClose={() => setSelectedBooking(null)}
+            >
+              <DialogHeader>
+                <div>
+                  <DialogTitle className="text-2xl font-bold text-gray-800">
+                    Booking Details
+                  </DialogTitle>
+                  <p className="text-gray-500 text-sm">
+                    #{selectedBooking?.id?.slice(-8)}
+                  </p>
                 </div>
+              </DialogHeader>
 
+              {selectedBooking && (
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      {selectedBooking.serviceId?.name}
+                      {selectedBooking.service?.name}
                     </h3>
                     <StatusBadge status={selectedBooking.status} />
                   </div>
@@ -291,14 +301,14 @@ const BookingRequests = () => {
                     <div>
                       <p className="text-sm text-gray-500">Customer</p>
                       <p className="font-medium">
-                        {selectedBooking.userId?.name}
+                        {selectedBooking.user?.name}
                       </p>
                       <p className="text-sm text-gray-400">
-                        {selectedBooking.userId?.email}
+                        {selectedBooking.user?.email}
                       </p>
-                      {selectedBooking.userId?.phone && (
+                      {selectedBooking.user?.phone && (
                         <p className="text-sm text-gray-400">
-                          {selectedBooking.userId?.phone}
+                          {selectedBooking.user?.phone}
                         </p>
                       )}
                     </div>
@@ -350,51 +360,54 @@ const BookingRequests = () => {
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                  <DialogFooter className="flex gap-3 pt-4 border-t border-gray-200">
+                    <Button
+                      onClick={() => setSelectedBooking(null)}
+                      variant="outline"
+                      className="flex-1"
                     >
                       Close
-                    </button>
-                    {selectedBooking.status === "pending" && (
+                    </Button>
+                    {selectedBooking.status.toUpperCase() === "PENDING" && (
                       <>
-                        <button
+                        <Button
                           onClick={() => {
-                            handleAccept(selectedBooking._id);
-                            setShowModal(false);
+                            handleAccept(selectedBooking.id);
+                            setSelectedBooking(null);
                           }}
-                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                         >
                           Accept
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => {
-                            setShowModal(false);
-                            handleReject(selectedBooking._id);
+                            setSelectedBooking(null);
+                            handleReject(selectedBooking.id);
                           }}
-                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                          variant="destructive"
+                          className="flex-1"
                         >
                           Reject
-                        </button>
+                        </Button>
                       </>
                     )}
-                    {selectedBooking.status === "accepted" && (
-                      <button
+                    {selectedBooking.status.toUpperCase() === "ACCEPTED" && (
+                      <Button
                         onClick={() => {
-                          setShowModal(false);
-                          handleComplete(selectedBooking._id);
+                          setSelectedBooking(null);
+                          handleComplete(selectedBooking.id);
                         }}
-                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        variant="provider"
+                        className="flex-1"
                       >
                         Mark Complete
-                      </button>
+                      </Button>
                     )}
-                  </div>
+                  </DialogFooter>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
+            </DialogContent>
+          </Dialog>
 
           <ConfirmDialog
             isOpen={confirmDialog.isOpen}

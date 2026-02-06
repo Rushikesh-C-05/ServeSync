@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiShield, FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -38,8 +41,8 @@ const AdminLogin = () => {
         </Link>
 
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <FiShield className="text-2xl text-white" />
+          <div className="w-14 h-14 bg-admin rounded-xl flex items-center justify-center mx-auto mb-4">
+            <FiShield className="text-2xl text-admin-foreground" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Login</h2>
           <p className="text-gray-500">Secure platform access</p>
@@ -53,16 +56,20 @@ const AdminLogin = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Label
+              htmlFor="admin-email"
+              className="block text-sm font-medium mb-2 text-gray-700"
+            >
               Admin Email
-            </label>
+            </Label>
             <div className="relative">
               <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
+              <Input
+                id="admin-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field pl-10"
+                className="pl-10"
                 placeholder="admin@servesync.com"
                 required
               />
@@ -70,29 +77,34 @@ const AdminLogin = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Label
+              htmlFor="admin-password"
+              className="block text-sm font-medium mb-2 text-gray-700"
+            >
               Password
-            </label>
+            </Label>
             <div className="relative">
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
+              <Input
+                id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field pl-10"
+                className="pl-10"
                 placeholder="••••••••"
                 required
               />
             </div>
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="btn-primary w-full bg-slate-800 hover:bg-slate-900"
+            variant="admin"
+            className="w-full"
             disabled={loading}
           >
             {loading ? "Authenticating..." : "Access Dashboard"}
-          </button>
+          </Button>
         </form>
 
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">

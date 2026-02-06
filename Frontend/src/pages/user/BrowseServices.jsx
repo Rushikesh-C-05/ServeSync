@@ -4,6 +4,8 @@ import Navbar from "../../components/Navbar";
 import ServiceCard from "../../components/ServiceCard";
 import { serviceAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 
 const BrowseServices = () => {
   const navigate = useNavigate();
@@ -30,7 +32,6 @@ const BrowseServices = () => {
       setServices(data);
       setFilteredServices(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -84,12 +85,12 @@ const BrowseServices = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
+                <Input
                   type="text"
                   placeholder="Search services..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input-field pl-10"
+                  className="pl-10"
                 />
               </div>
 
@@ -97,17 +98,13 @@ const BrowseServices = () => {
                 <FiFilter className="text-gray-400" />
                 <div className="flex space-x-2 flex-1">
                   {categories.map((cat) => (
-                    <button
+                    <Button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        selectedCategory === cat
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
+                      variant={selectedCategory === cat ? "user" : "outline"}
                     >
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -119,9 +116,9 @@ const BrowseServices = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredServices.map((service) => (
                 <ServiceCard
-                  key={service._id}
+                  key={service.id}
                   service={service}
-                  onClick={() => navigate(`/user/booking/${service._id}`)}
+                  onClick={() => navigate(`/user/booking/${service.id}`)}
                 />
               ))}
             </div>

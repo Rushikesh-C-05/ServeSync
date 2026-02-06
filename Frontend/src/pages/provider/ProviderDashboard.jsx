@@ -15,6 +15,14 @@ import ImageUpload from "../../components/ImageUpload";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { providerAPI, uploadAPI } from "../../services/api";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 
 const ProviderDashboard = () => {
   const { user, updateUserImage } = useAuth();
@@ -48,7 +56,7 @@ const ProviderDashboard = () => {
 
       // Format bookings data
       const formattedBookings = (data.recentBookings || []).map((booking) => ({
-        _id: booking._id,
+        id: booking.id,
         serviceName: booking.serviceId?.name || "Service",
         customerName: booking.userId?.name || "Customer",
         bookingDate: booking.bookingDate,
@@ -113,37 +121,41 @@ const ProviderDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen provider-theme flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-provider border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen provider-theme">
       <Navbar role="provider" links={navLinks} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Banner */}
-        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8 border-l-4 border-l-indigo-600">
-          <div className="flex items-center space-x-6">
-            <ImageUpload
-              currentImage={providerImage}
-              onUpload={handleImageUpload}
-              onDelete={handleImageDelete}
-              type="provider"
-              size="lg"
-              shape="circle"
-              loading={imageLoading}
-            />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.name}! 🛠️
-              </h1>
-              <p className="text-gray-500">Manage your services and bookings</p>
+        <Card className="mb-8 border-l-4 border-l-provider">
+          <CardContent className="p-8">
+            <div className="flex items-center space-x-6">
+              <ImageUpload
+                currentImage={providerImage}
+                onUpload={handleImageUpload}
+                onDelete={handleImageDelete}
+                type="provider"
+                size="lg"
+                shape="circle"
+                loading={imageLoading}
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground mb-2">
+                  Welcome back, {user?.name}! 🛠️
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage your services and bookings
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -151,13 +163,13 @@ const ProviderDashboard = () => {
             icon={FiShoppingBag}
             label="Total Services"
             value={stats?.totalServices || 0}
-            color="purple"
+            color="provider"
           />
           <StatCard
             icon={FiClock}
             label="Active Bookings"
             value={stats?.activeBookings || 0}
-            color="blue"
+            color="provider"
           />
           <StatCard
             icon={FiCheckCircle}
@@ -186,137 +198,151 @@ const ProviderDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => navigate("/provider/services")}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors text-left"
-            >
-              <FiShoppingBag className="text-2xl text-indigo-600 mb-2" />
-              <h3 className="font-semibold text-gray-900">Manage Services</h3>
-              <p className="text-sm text-gray-500">Add or edit your services</p>
-            </button>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/provider/services")}
+                className="h-auto p-4 flex flex-col items-start hover:bg-accent"
+              >
+                <FiShoppingBag className="text-2xl text-provider mb-2" />
+                <h3 className="font-semibold text-foreground">
+                  Manage Services
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Add or edit your services
+                </p>
+              </Button>
 
-            <button
-              onClick={() => navigate("/provider/requests")}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors text-left"
-            >
-              <FiClock className="text-2xl text-blue-600 mb-2" />
-              <h3 className="font-semibold text-gray-900">View Requests</h3>
-              <p className="text-sm text-gray-500">
-                {stats?.pendingRequests || 0} pending requests
-              </p>
-            </button>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/provider/requests")}
+                className="h-auto p-4 flex flex-col items-start hover:bg-accent"
+              >
+                <FiClock className="text-2xl text-provider mb-2" />
+                <h3 className="font-semibold text-foreground">View Requests</h3>
+                <p className="text-sm text-muted-foreground">
+                  {stats?.pendingRequests || 0} pending requests
+                </p>
+              </Button>
 
-            <button
-              onClick={() => navigate("/provider/earnings")}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors text-left"
-            >
-              <FiDollarSign className="text-2xl text-green-600 mb-2" />
-              <h3 className="font-semibold text-gray-900">View Earnings</h3>
-              <p className="text-sm text-gray-500">Track your revenue</p>
-            </button>
-          </div>
-        </div>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/provider/earnings")}
+                className="h-auto p-4 flex flex-col items-start hover:bg-accent"
+              >
+                <FiDollarSign className="text-2xl text-emerald-600 mb-2" />
+                <h3 className="font-semibold text-foreground">View Earnings</h3>
+                <p className="text-sm text-muted-foreground">
+                  Track your revenue
+                </p>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Recent Bookings */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Recent Bookings</h2>
-            <button
-              onClick={() => navigate("/provider/requests")}
-              className="text-indigo-600 hover:text-indigo-700 transition-colors text-sm font-medium"
-            >
-              View All →
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {bookings.length > 0 ? (
-              bookings.map((booking) => (
-                <div
-                  key={booking._id}
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {booking.serviceName}
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-1">
-                        Customer: {booking.customerName}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        <FiClock className="inline mr-1" />
-                        {new Date(
-                          booking.bookingDate,
-                        ).toLocaleDateString()} at {booking.bookingTime}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <StatusBadge status={booking.status} />
-                      <p className="text-lg font-bold text-green-600 mt-2">
-                        ${booking.totalAmount.toFixed(2)}
-                      </p>
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Recent Bookings</CardTitle>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/provider/requests")}
+                className="text-provider hover:text-provider/80"
+              >
+                View All →
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {bookings.length > 0 ? (
+                bookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="bg-accent/50 border rounded-lg p-4 hover:bg-accent transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1">
+                          {booking.serviceName}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Customer: {booking.customerName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <FiClock className="inline mr-1" />
+                          {new Date(
+                            booking.bookingDate,
+                          ).toLocaleDateString()}{" "}
+                          at {booking.bookingTime}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <StatusBadge status={booking.status} />
+                        <p className="text-lg font-bold text-emerald-600 mt-2">
+                          ${booking.totalAmount.toFixed(2)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 py-8">No bookings yet</p>
-            )}
-          </div>
-        </div>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  No bookings yet
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* My Services */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">My Services</h2>
-            <button
-              onClick={() => navigate("/provider/services")}
-              className="text-indigo-600 hover:text-indigo-700 transition-colors text-sm font-medium"
-            >
-              Manage All →
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {services.map((service) => (
-              <div
-                key={service._id}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>My Services</CardTitle>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/provider/services")}
+                className="text-provider hover:text-provider/80"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {service.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {service.bookings} total bookings
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-green-600">
-                      ${service.price}
-                    </p>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        service.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {service.status}
-                    </span>
+                Manage All →
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {services.map((service) => (
+                <div
+                  key={service.id}
+                  className="bg-accent/50 border rounded-lg p-4 hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">
+                        {service.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {service.bookings} total bookings
+                      </p>
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-2">
+                      <p className="text-lg font-bold text-emerald-600">
+                        ${service.price}
+                      </p>
+                      <StatusBadge status={service.status} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -24,6 +24,11 @@ apiClient.interceptors.request.use((config) => {
     config.headers["X-User-ID"] = userId;
   }
 
+  // If sending FormData, remove Content-Type header to let browser set it with boundary
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   return config;
 });
 
@@ -63,11 +68,12 @@ apiClient.interceptors.response.use(
 // ==================== AUTH API ====================
 export const authAPI = {
   register: (data) => {
-    // If FormData (with file), don't set Content-Type (browser will set it with boundary)
+    // If FormData (with file), let browser set Content-Type with boundary automatically
     if (data instanceof FormData) {
-      return apiClient.post("/auth/register", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // Create a new config without Content-Type header so browser can set it with boundary
+      const config = { headers: {} };
+      // Remove the Content-Type header from the default headers for this request
+      return apiClient.post("/auth/register", data, config);
     }
     return apiClient.post("/auth/register", data);
   },
@@ -101,14 +107,12 @@ export const userAPI = {
     apiClient.get(`/user/${userId}/bookings/${bookingId}/can-review`),
   // Provider Application
   submitProviderApplication: (userId, applicationData) => {
-    // If FormData (with file), set appropriate header
+    // If FormData (with file), let browser set Content-Type with boundary
     if (applicationData instanceof FormData) {
       return apiClient.post(
         `/user/${userId}/provider-application`,
         applicationData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
+        { headers: {} },
       );
     }
     return apiClient.post(
@@ -126,12 +130,12 @@ export const providerAPI = {
   register: (userId, providerData) =>
     apiClient.post(`/provider/${userId}/register`, providerData),
   getProfile: (userId) => apiClient.get(`/provider/${userId}/profile`),
-  getCategories: () => apiClient.get("/admin/categories"), // Public endpoint for categories
+  getCategories: () => apiClient.get("/service/categories"), // Public endpoint for categories
   createService: (userId, serviceData) => {
-    // If FormData (with file), set appropriate header
+    // If FormData (with file), let browser set Content-Type with boundary
     if (serviceData instanceof FormData) {
       return apiClient.post(`/provider/${userId}/services`, serviceData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {},
       });
     }
     return apiClient.post(`/provider/${userId}/services`, serviceData);
@@ -218,9 +222,9 @@ export const adminAPI = {
     apiClient.patch(`/admin/provider-applications/${id}/approve`, {
       adminNotes,
     }),
-  rejectProviderApplication: (id, adminNotes) =>
+  rejectProviderApplication: (id, reason) =>
     apiClient.patch(`/admin/provider-applications/${id}/reject`, {
-      adminNotes,
+      reason,
     }),
 };
 

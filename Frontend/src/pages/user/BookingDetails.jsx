@@ -15,6 +15,9 @@ import Navbar from "../../components/Navbar";
 import ServiceReviews from "../../components/ServiceReviews";
 import { serviceAPI, userAPI, paymentAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../components/ui/button";
+import { Textarea } from "../../components/ui/textarea";
+import { Input } from "../../components/ui/input";
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -47,7 +50,6 @@ const BookingDetails = () => {
       const data = response.data?.data || response.data;
       setService(data);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -81,7 +83,7 @@ const BookingDetails = () => {
 
       // First create the booking
       const bookingData = {
-        serviceId: service._id,
+        serviceId: service.id,
         bookingDate: selectedDate,
         bookingTime: selectedTime,
         userAddress: address,
@@ -91,9 +93,11 @@ const BookingDetails = () => {
       const bookingResponse = await userAPI.bookService(user.id, bookingData);
       const booking = bookingResponse.data?.data || bookingResponse.data;
 
-      if (!booking || !booking._id) {
+      if (!booking || !booking.id) {
         throw new Error("Failed to create booking");
       }
+
+      const bookingId = booking.id;
 
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
@@ -104,12 +108,12 @@ const BookingDetails = () => {
       }
 
       // Create Razorpay order
-      const orderResponse = await paymentAPI.createOrder(booking._id);
+      const orderResponse = await paymentAPI.createOrder(bookingId);
       const orderData = orderResponse.data?.data || orderResponse.data;
 
       // Razorpay options
       const options = {
-        key: orderData.keyId, // Key ID from backend
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Key ID from environment variable
         amount: orderData.amount,
         currency: orderData.currency,
         name: "ServeSync",
@@ -122,7 +126,7 @@ const BookingDetails = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              bookingId: booking._id,
+              bookingId: bookingId,
             };
 
             await paymentAPI.verifyPayment(verifyData);
@@ -130,7 +134,6 @@ const BookingDetails = () => {
             toast.success("Payment successful! Booking confirmed.");
             navigate("/user/bookings");
           } catch (error) {
-            
             toast.error("Payment verification failed. Please contact support.");
           }
         },
@@ -156,7 +159,6 @@ const BookingDetails = () => {
       paymentObject.open();
       setProcessing(false);
     } catch (error) {
-      
       const errorMsg =
         error.response?.data?.message || "Payment failed. Please try again.";
       toast.error(errorMsg);
@@ -197,7 +199,7 @@ const BookingDetails = () => {
         <div>
           {/* Service Details */}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8">
-            <div className="h-64 md:h-96 overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600">
+            <div className="h-64 md:h-96 overflow-hidden bg-user/10">
               {service.image ? (
                 <img
                   src={service.image}
@@ -254,12 +256,11 @@ const BookingDetails = () => {
                     <FiCalendar className="mr-2" />
                     Select Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="input-field"
                   />
                 </div>
 
@@ -270,17 +271,14 @@ const BookingDetails = () => {
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {timeSlots.map((time) => (
-                      <button
+                      <Button
                         key={time}
                         onClick={() => setSelectedTime(time)}
-                        className={`p-3 rounded-lg border transition-colors ${
-                          selectedTime === time
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : "bg-white border-gray-200 hover:border-blue-600 text-gray-700"
-                        }`}
+                        variant={selectedTime === time ? "user" : "outline"}
+                        className="p-3"
                       >
                         {time}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -290,11 +288,10 @@ const BookingDetails = () => {
                     <FiMapPin className="mr-2" />
                     Service Address
                   </label>
-                  <textarea
+                  <Textarea
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="input-field"
-                    rows="3"
+                    rows={3}
                     placeholder="Enter your address"
                   />
                 </div>
@@ -303,18 +300,21 @@ const BookingDetails = () => {
                   <label className="block text-sm font-medium mb-2 text-gray-700">
                     Additional Notes (Optional)
                   </label>
-                  <textarea
+                  <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="input-field"
-                    rows="2"
+                    rows={2}
                     placeholder="Any special instructions?"
                   />
                 </div>
 
-                <button onClick={handleBooking} className="btn-primary w-full">
+                <Button
+                  onClick={handleBooking}
+                  variant="user"
+                  className="w-full"
+                >
                   Proceed to Payment
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -369,20 +369,22 @@ const BookingDetails = () => {
               </div>
 
               <div className="flex space-x-4">
-                <button
+                <Button
                   onClick={() => setShowPayment(false)}
-                  className="btn-secondary flex-1"
+                  variant="outline"
+                  className="flex-1"
                   disabled={processing}
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handlePayment}
-                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  variant="user"
+                  className="flex-1"
                   disabled={processing}
                 >
                   {processing ? "Processing..." : "Pay with Razorpay"}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -390,7 +392,7 @@ const BookingDetails = () => {
           {/* Reviews Section */}
           {!showPayment && service && (
             <div className="mt-8">
-              <ServiceReviews serviceId={service._id} />
+              <ServiceReviews serviceId={service.id} />
             </div>
           )}
         </div>

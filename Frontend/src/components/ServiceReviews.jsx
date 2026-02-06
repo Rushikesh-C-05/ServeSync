@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { FiStar, FiChevronDown } from "react-icons/fi";
 import ReviewCard from "./ReviewCard";
 import { serviceAPI } from "../services/api";
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./ui/select";
 
 const ServiceReviews = ({ serviceId }) => {
   const [reviewData, setReviewData] = useState(null);
@@ -25,7 +33,6 @@ const ServiceReviews = ({ serviceId }) => {
       setReviewData(response.data?.data || null);
       setPage(1);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
@@ -52,7 +59,6 @@ const ServiceReviews = ({ serviceId }) => {
         setPage(nextPage);
       }
     } catch (error) {
-      
     } finally {
       setLoadingMore(false);
     }
@@ -110,16 +116,17 @@ const ServiceReviews = ({ serviceId }) => {
         {/* Sort Dropdown */}
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600">Sort by:</label>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="input-field py-2 pr-8"
-          >
-            <option value="recent">Most Recent</option>
-            <option value="highest">Highest Rated</option>
-            <option value="lowest">Lowest Rated</option>
-            <option value="helpful">Most Helpful</option>
-          </select>
+          <Select value={sort} onValueChange={(value) => setSort(value)}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Most Recent</SelectItem>
+              <SelectItem value="highest">Highest Rated</SelectItem>
+              <SelectItem value="lowest">Lowest Rated</SelectItem>
+              <SelectItem value="helpful">Most Helpful</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -157,16 +164,17 @@ const ServiceReviews = ({ serviceId }) => {
       {reviews && reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <ReviewCard key={review._id} review={review} />
+            <ReviewCard key={review.id} review={review} />
           ))}
 
           {/* Load More */}
           {pagination?.hasMore && (
             <div className="text-center pt-4">
-              <button
+              <Button
                 onClick={loadMoreReviews}
                 disabled={loadingMore}
-                className="btn-secondary inline-flex items-center gap-2"
+                variant="outline"
+                className="inline-flex items-center gap-2"
               >
                 {loadingMore ? (
                   <>
@@ -179,7 +187,7 @@ const ServiceReviews = ({ serviceId }) => {
                     Load More Reviews
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           )}
         </div>
